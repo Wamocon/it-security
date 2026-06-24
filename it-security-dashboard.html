@@ -1,0 +1,1501 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IT Security Dashboard</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fa;
+      --surface: #ffffff;
+      --surface-2: #eef2f7;
+      --ink: #172033;
+      --muted: #5d687a;
+      --line: #d9e0ea;
+      --line-strong: #b9c4d2;
+      --success: #147a5c;
+      --danger: #b42318;
+      --warning: #a15c07;
+      --focus: #235fd6;
+      --shadow: 0 16px 40px rgba(24, 34, 52, 0.08);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      min-height: 2.35rem;
+      padding: 0.45rem 0.7rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+    }
+
+    button:hover {
+      border-color: var(--line-strong);
+      background: #f9fbfd;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 3px solid rgba(35, 95, 214, 0.22);
+      outline-offset: 2px;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 18rem minmax(0, 1fr);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      border-right: 1px solid var(--line);
+      background: #fbfcfe;
+      padding: 1rem;
+    }
+
+    .brand {
+      display: grid;
+      gap: 0.35rem;
+      padding: 0.4rem 0.25rem 0.9rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1rem;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.15rem;
+      line-height: 1.25;
+    }
+
+    .brand p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.35;
+    }
+
+    .overall-panel {
+      display: grid;
+      gap: 0.75rem;
+      padding: 0.9rem;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 0.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    .overall-topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .overall-number {
+      font-size: 2rem;
+      line-height: 1;
+      font-weight: 760;
+    }
+
+    .overall-label {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 0.55rem;
+      background: #e6ebf2;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #147a5c, #235fd6);
+      transition: width 180ms ease;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .stat {
+      padding: 0.55rem;
+      border: 1px solid var(--line);
+      border-radius: 0.45rem;
+      background: #fbfcfe;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1rem;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      margin-top: 0.1rem;
+    }
+
+    .nav-title {
+      margin: 1rem 0 0.5rem;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .section-nav {
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    .nav-item {
+      display: grid;
+      gap: 0.35rem;
+      padding: 0.55rem;
+      border: 1px solid transparent;
+      border-radius: 0.45rem;
+      background: transparent;
+      text-align: left;
+      width: 100%;
+    }
+
+    .nav-item:hover {
+      background: var(--surface);
+      border-color: var(--line);
+    }
+
+    .nav-item-title {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.86rem;
+      font-weight: 680;
+      line-height: 1.2;
+    }
+
+    .nav-dot {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 50%;
+      background: var(--accent, #235fd6);
+      flex: 0 0 auto;
+    }
+
+    .nav-meta {
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(245, 247, 250, 0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .topbar-inner {
+      display: grid;
+      gap: 0.85rem;
+      padding: 1rem 1.25rem;
+    }
+
+    .toolbar-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .view-title {
+      min-width: 12rem;
+    }
+
+    .view-title h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      line-height: 1.2;
+    }
+
+    .view-title p {
+      margin: 0.18rem 0 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .field {
+      display: grid;
+      gap: 0.25rem;
+    }
+
+    .field label,
+    .field-label {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .search {
+      width: min(28rem, 100%);
+      min-height: 2.4rem;
+      border: 1px solid var(--line);
+      border-radius: 0.5rem;
+      padding: 0.45rem 0.7rem;
+      background: var(--surface);
+      color: var(--ink);
+    }
+
+    select {
+      min-height: 2.4rem;
+      border: 1px solid var(--line);
+      border-radius: 0.5rem;
+      padding: 0.45rem 2rem 0.45rem 0.7rem;
+      background: var(--surface);
+      color: var(--ink);
+    }
+
+    .segmented {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 0.5rem;
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    .segmented button {
+      border: 0;
+      border-radius: 0;
+      border-right: 1px solid var(--line);
+      min-height: 2.35rem;
+    }
+
+    .segmented button:last-child {
+      border-right: 0;
+    }
+
+    .segmented button[aria-pressed="true"] {
+      background: #172033;
+      color: #fff;
+    }
+
+    .language-toggle button {
+      min-width: 3.2rem;
+      font-weight: 760;
+    }
+
+    .dashboard {
+      padding: 1.25rem 1.25rem 0;
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    .dashboard-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 1rem;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 0.5rem;
+      box-shadow: var(--shadow);
+      padding: 1rem;
+    }
+
+    .dashboard-hero h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      line-height: 1.2;
+    }
+
+    .dashboard-hero p {
+      margin: 0.25rem 0 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .dashboard-ring {
+      width: 6rem;
+      height: 6rem;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at center, #fff 0 58%, transparent 59%),
+        conic-gradient(var(--success) var(--dashboard-angle, 0deg), #e6ebf2 0);
+      border: 1px solid var(--line);
+    }
+
+    .dashboard-ring strong {
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+
+    .dashboard-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 0.5rem;
+      box-shadow: var(--shadow);
+      padding: 0.9rem;
+      min-height: 6.1rem;
+      display: grid;
+      align-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .dashboard-card strong {
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+
+    .dashboard-card span {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.35;
+    }
+
+    .dashboard-domain-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+      gap: 0.6rem;
+    }
+
+    .domain-progress {
+      --accent: #235fd6;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 0.25rem solid var(--accent);
+      border-radius: 0.45rem;
+      padding: 0.7rem;
+      display: grid;
+      gap: 0.45rem;
+      min-width: 0;
+    }
+
+    .domain-progress strong {
+      font-size: 0.86rem;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .domain-progress span {
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    .content {
+      padding: 1.25rem;
+      display: grid;
+      gap: 1.1rem;
+    }
+
+    .domain {
+      --accent: #235fd6;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 0.35rem solid var(--accent);
+      border-radius: 0.5rem;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .domain-header {
+      display: grid;
+      gap: 0.7rem;
+      padding: 1rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .domain-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .domain-heading h3 {
+      margin: 0;
+      font-size: 1.08rem;
+      line-height: 1.25;
+    }
+
+    .domain-description {
+      color: var(--muted);
+      line-height: 1.55;
+      margin: 0;
+      max-width: 70rem;
+    }
+
+    .domain-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .mini-progress {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 0.6rem;
+      align-items: center;
+      min-width: min(20rem, 100%);
+    }
+
+    .mini-progress span {
+      color: var(--muted);
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+
+    .topic {
+      border-top: 1px solid var(--line);
+    }
+
+    .topic:first-child {
+      border-top: 0;
+    }
+
+    .topic summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 0.9rem 1rem;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .topic summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .topic-title {
+      min-width: 0;
+    }
+
+    .topic-title strong {
+      display: block;
+      line-height: 1.25;
+    }
+
+    .topic-title span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-top: 0.15rem;
+    }
+
+    .topic-chevron {
+      width: 1.75rem;
+      height: 1.75rem;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      color: var(--muted);
+      transition: transform 160ms ease;
+    }
+
+    details[open] .topic-chevron {
+      transform: rotate(90deg);
+    }
+
+    .checklist {
+      display: grid;
+      padding: 0 1rem 0.95rem;
+      gap: 0.42rem;
+    }
+
+    .check-row {
+      display: grid;
+      grid-template-columns: 1.4rem minmax(0, 1fr);
+      gap: 0.55rem;
+      align-items: flex-start;
+      padding: 0.58rem 0.65rem;
+      border: 1px solid var(--line);
+      border-radius: 0.45rem;
+      background: #fbfcfe;
+      line-height: 1.35;
+    }
+
+    .check-row.is-done {
+      background: #eef8f4;
+      border-color: #bee4d3;
+    }
+
+    .check-row.is-hidden {
+      display: none;
+    }
+
+    .check-row input {
+      width: 1.1rem;
+      height: 1.1rem;
+      margin: 0.08rem 0 0;
+      accent-color: var(--success);
+    }
+
+    .check-text {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .check-text.done {
+      color: #386052;
+      text-decoration: line-through;
+      text-decoration-thickness: 1px;
+    }
+
+    .empty-state {
+      padding: 1rem;
+      color: var(--muted);
+      border: 1px dashed var(--line-strong);
+      border-radius: 0.5rem;
+      background: #fbfcfe;
+    }
+
+    .reference-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+      gap: 0.7rem;
+      padding-top: 0.3rem;
+    }
+
+    .reference-item {
+      border: 1px solid var(--line);
+      background: #fbfcfe;
+      border-radius: 0.45rem;
+      padding: 0.75rem;
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    .reference-item strong {
+      line-height: 1.25;
+    }
+
+    .reference-item span,
+    .reference-item li {
+      color: var(--muted);
+      line-height: 1.42;
+    }
+
+    .reference-list {
+      margin: 0;
+      padding-left: 1.15rem;
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    .toast {
+      position: fixed;
+      right: 1rem;
+      bottom: 1rem;
+      max-width: min(28rem, calc(100vw - 2rem));
+      padding: 0.75rem 0.85rem;
+      background: #172033;
+      color: #fff;
+      border-radius: 0.5rem;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(0.5rem);
+      pointer-events: none;
+      transition: opacity 160ms ease, transform 160ms ease;
+      z-index: 40;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 980px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: relative;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .section-nav {
+        grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+      }
+
+      .dashboard-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 680px) {
+      .topbar-inner,
+      .dashboard,
+      .content {
+        padding-left: 0.8rem;
+        padding-right: 0.8rem;
+      }
+
+      .toolbar-row,
+      .controls,
+      .domain-heading {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .search,
+      .field,
+      .field select,
+      .controls button,
+      .segmented {
+        width: 100%;
+      }
+
+      .segmented button {
+        flex: 1;
+      }
+
+      .dashboard-hero {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .dashboard-ring {
+        width: 5rem;
+        height: 5rem;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .topic summary {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .topic-chevron {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1 id="appTitle">IT Security Dashboard</h1>
+        <p id="appSubtitle">Comprehensive Security Checklist &amp; Implementation Guide</p>
+      </div>
+
+      <section class="overall-panel" aria-label="Overall progress">
+        <div class="overall-topline">
+          <div>
+            <div class="overall-number" id="overallPercent">0%</div>
+            <div class="overall-label" id="overallUpdated">No saved progress yet</div>
+          </div>
+          <button type="button" id="resetProgress">Reset</button>
+        </div>
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-fill" id="overallFill"></div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat"><strong id="doneCount">0</strong><span>Done</span></div>
+          <div class="stat"><strong id="openCount">0</strong><span>Open</span></div>
+          <div class="stat"><strong id="totalCount">0</strong><span>Total</span></div>
+        </div>
+      </section>
+
+      <div class="nav-title">Domains</div>
+      <nav class="section-nav" id="sectionNav" aria-label="Security domains"></nav>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <div class="topbar-inner">
+          <div class="toolbar-row">
+            <div class="view-title">
+              <h2 id="viewTitle">Checklist</h2>
+              <p id="viewMeta">Offline progress tracker</p>
+            </div>
+            <div class="controls">
+              <div class="field">
+                <span class="field-label" id="languageToggleLabel">Language</span>
+                <div class="segmented language-toggle" role="group" aria-labelledby="languageToggleLabel">
+                  <button type="button" data-lang="en" aria-pressed="true">EN</button>
+                  <button type="button" data-lang="de" aria-pressed="false">DE</button>
+                </div>
+              </div>
+              <div class="field">
+                <label for="sectionSelect">Section</label>
+                <select id="sectionSelect"></select>
+              </div>
+            </div>
+          </div>
+          <div class="toolbar-row">
+            <input id="searchInput" class="search" type="search" placeholder="Search controls, topics, sections" autocomplete="off">
+            <div class="controls">
+              <div class="segmented" aria-label="Filter controls">
+                <button type="button" data-filter="all" aria-pressed="true">All</button>
+                <button type="button" data-filter="open" aria-pressed="false">Open</button>
+                <button type="button" data-filter="done" aria-pressed="false">Done</button>
+              </div>
+              <button type="button" id="expandAll">Expand</button>
+              <button type="button" id="collapseAll">Collapse</button>
+              <button type="button" id="exportProgress">Export</button>
+              <button type="button" id="importProgress">Import</button>
+              <input class="sr-only" id="importFile" type="file" accept="application/json,.json">
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="dashboard" aria-labelledby="dashboardTitle">
+        <div class="dashboard-hero">
+          <div>
+            <h2 id="dashboardTitle">Progress Dashboard</h2>
+            <p id="dashboardSubtitle">Live overview of your IT-security implementation progress.</p>
+          </div>
+          <div class="dashboard-ring" id="dashboardRing" aria-label="Overall completion">
+            <strong id="dashboardPercent">0%</strong>
+          </div>
+        </div>
+        <div class="dashboard-grid" aria-label="Progress metrics">
+          <div class="dashboard-card">
+            <strong id="dashboardDone">0</strong>
+            <span id="dashboardDoneLabel">Completed controls</span>
+          </div>
+          <div class="dashboard-card">
+            <strong id="dashboardOpen">0</strong>
+            <span id="dashboardOpenLabel">Open controls</span>
+          </div>
+          <div class="dashboard-card">
+            <strong id="dashboardDomains">0</strong>
+            <span id="dashboardDomainsLabel">Tracked domains</span>
+          </div>
+          <div class="dashboard-card">
+            <strong id="dashboardNextFocus">-</strong>
+            <span id="dashboardNextFocusLabel">Next focus</span>
+          </div>
+        </div>
+        <div class="dashboard-domain-grid" id="dashboardDomainGrid" aria-label="Domain progress"></div>
+      </section>
+
+      <section class="content" id="content"></section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const FRAMEWORK = {"generatedAt":"2026-06-24T12:58:00","storageKey":"itSecurityFrameworkProgress.v1","languages":{"en":{"code":"en","source":"IT_Security_Framework.docx","title":"IT Security Framework","subtitle":"Comprehensive Security Checklist \u0026 Implementation Guide","version":"Version 1.0  |  June 2026","sections":[{"id":"s00","title":"Executive Summary","description":["This document provides a comprehensive IT Security Framework designed for organizations starting their security journey from the ground up. It is structured around the NIST Cybersecurity Framework 2.0 (Govern, Identify, Protect, Detect, Respond, Recover) and incorporates industry best practices from ISO 27001, CIS Controls, and BSI IT-Grundschutz.","The framework covers all critical security domains: governance and risk management, asset inventory, identity and access management, network security, endpoint protection, data protection, email security, AI infrastructure security, physical security, monitoring and detection, incident response, backup and disaster recovery, compliance (GDPR), vendor risk management, and security awareness training.","Each section contains actionable checklist items that can be marked as Open (not started), In Progress, or Completed. Use this document as a living reference to track your organization\u0027s security posture improvement over time.","Category / Phase","Description","Critical Items","High-risk items requiring immediate attention","High Priority","Important items to address within 4-7 days","Medium Priority","Items to implement within 10-15 days","Ongoing","Continuous activities requiring regular attention"],"topics":[],"checklist":[],"notes":[],"kind":"summary","trackProgress":false},{"id":"s01","title":"GOVERN — Security Governance \u0026 Risk Management","description":["Governance is the foundation of any security program. It establishes the organizational structure, policies, and processes needed to manage cybersecurity risk effectively. Without governance, security activities become ad-hoc and inconsistent."],"topics":[{"id":"s01-t00","title":"1.1 Security Leadership \u0026 Roles","description":[],"checklist":[{"id":"s01-t00-i000","text":"Assign an Information Security Officer (ISO) or security lead responsible for overseeing the security program"},{"id":"s01-t00-i001","text":"Define the ISO\u0027s authority, responsibilities, and reporting lines to management"},{"id":"s01-t00-i002","text":"Establish a security committee or regular security review meetings with key stakeholders"},{"id":"s01-t00-i003","text":"Document roles and responsibilities for all employees regarding information security"},{"id":"s01-t00-i004","text":"Ensure management demonstrates commitment to security through resource allocation and policy support"}],"notes":[]},{"id":"s01-t01","title":"1.2 Security Policies \u0026 Procedures","description":[],"checklist":[{"id":"s01-t01-i000","text":"Create an Information Security Policy covering purpose, scope, roles, and objectives"},{"id":"s01-t01-i001","text":"Establish an Acceptable Use Policy defining permitted use of company systems, devices, and data"},{"id":"s01-t01-i002","text":"Define a Password Policy requiring minimum 14 characters, uniqueness per account, and MFA enforcement"},{"id":"s01-t01-i003","text":"Create a Remote Work Policy covering VPN use, device security, and home office requirements"},{"id":"s01-t01-i004","text":"Establish a Data Classification Policy with at least 4 levels: Public, Internal, Confidential, Restricted"},{"id":"s01-t01-i005","text":"Document an Access Control Policy enforcing least privilege and need-to-know principles"},{"id":"s01-t01-i006","text":"Create a Change Management Policy for controlled changes to systems and configurations"},{"id":"s01-t01-i007","text":"Establish a Software Installation Policy requiring approval for non-standard software"},{"id":"s01-t01-i008","text":"Document a Vendor Management Policy for third-party risk assessment"},{"id":"s01-t01-i009","text":"Ensure all policies are reviewed annually and updated when significant changes occur"}],"notes":[]},{"id":"s01-t02","title":"1.3 Risk Management","description":[],"checklist":[{"id":"s01-t02-i000","text":"Establish a Risk Assessment Process reviewed at least annually or after significant changes"},{"id":"s01-t02-i001","text":"Create and maintain a Risk Register documenting identified risks, likelihood, impact, and mitigation status"},{"id":"s01-t02-i002","text":"Implement a risk scoring methodology (e.g., 1-5 scale for likelihood and impact)"},{"id":"s01-t02-i003","text":"Define risk treatment options: accept, mitigate, transfer, or avoid"},{"id":"s01-t02-i004","text":"Document risk acceptance decisions with management approval and justification"},{"id":"s01-t02-i005","text":"Review and update the risk register quarterly"}],"notes":[]},{"id":"s01-t03","title":"1.4 Legal \u0026 Regulatory Compliance","description":[],"checklist":[{"id":"s01-t03-i000","text":"Maintain a Legal and Contractual Requirements Register"},{"id":"s01-t03-i001","text":"Identify applicable regulations (GDPR, industry-specific requirements)"},{"id":"s01-t03-i002","text":"Ensure compliance with data protection laws for all processed personal data"},{"id":"s01-t03-i003","text":"Obtain necessary cyber insurance coverage"},{"id":"s01-t03-i004","text":"Document compliance monitoring and review processes"}],"notes":[]}],"checklist":[],"notes":[],"kind":"controls","trackProgress":true},{"id":"s02","title":"IDENTIFY — Asset Management \u0026 Risk Assessment","description":["You cannot protect what you do not know exists. The Identify function focuses on developing an organizational understanding of systems, assets, data, and capabilities that need protection."],"topics":[{"id":"s02-t00","title":"2.1 Asset Inventory","description":[],"checklist":[{"id":"s02-t00-i000","text":"Create and maintain a Hardware Asset Inventory (computers, laptops, servers, mobile devices, routers, printers, IoT)"},{"id":"s02-t00-i001","text":"Document Software Asset Inventory (operating systems, business applications, cloud services)"},{"id":"s02-t00-i002","text":"Include in asset records: owner, location, OS version, software versions, last update date"},{"id":"s02-t00-i003","text":"Maintain a Data Inventory documenting what data exists, where it is stored, and who has access"},{"id":"s02-t00-i004","text":"Create a Network Diagram showing all network segments, devices, and connections"},{"id":"s02-t00-i005","text":"Document all cloud services and SaaS applications in use"},{"id":"s02-t00-i006","text":"Review and update asset inventories quarterly"}],"notes":[]},{"id":"s02-t01","title":"2.2 Data Classification","description":[],"checklist":[{"id":"s02-t01-i000","text":"Implement a 4-level classification: Public, Internal, Confidential, Restricted"},{"id":"s02-t01-i001","text":"Define handling rules per classification (storage location, access rights, encryption, retention)"},{"id":"s02-t01-i002","text":"Map critical data assets: customer data, contracts, financials, HR data, source code, AI model weights"},{"id":"s02-t01-i003","text":"Label or tag documents and files according to classification level"},{"id":"s02-t01-i004","text":"Create a data retention and deletion policy aligned with GDPR requirements"}],"notes":[]},{"id":"s02-t02","title":"2.3 Risk Assessment","description":[],"checklist":[{"id":"s02-t02-i000","text":"Identify critical business assets and their value to the organization"},{"id":"s02-t02-i001","text":"Identify threats: cyber attacks, insider threats, natural disasters, system failures"},{"id":"s02-t02-i002","text":"Identify vulnerabilities: unpatched systems, weak passwords, lack of monitoring"},{"id":"s02-t02-i003","text":"Assess current security controls and their effectiveness"},{"id":"s02-t02-i004","text":"Determine risk levels and prioritize based on business impact"},{"id":"s02-t02-i005","text":"Document risk assessment results and mitigation plans"}],"notes":[]}],"checklist":[],"notes":[],"kind":"controls","trackProgress":true},{"id":"s03","title":"PROTECT — Security Controls","description":["The Protect function implements safeguards to prevent or reduce cybersecurity risks. This is the largest section, covering identity management, network security, endpoint protection, data protection, email security, AI infrastructure, and physical security."],"topics":[{"id":"s03-t00","title":"3.1 Identity \u0026 Access Management (IAM)","description":["Identity and access management is the cornerstone of security. Weak or compromised credentials remain the leading cause of data breaches, with 86% of breaches involving stolen credentials."],"checklist":[{"id":"s03-t00-i000","text":"Enforce Multi-Factor Authentication (MFA) on ALL accounts — email, financial systems, cloud storage, admin accounts"},{"id":"s03-t00-i001","text":"Use FIDO2/hardware security keys for privileged/admin accounts where possible"},{"id":"s03-t00-i002","text":"Deploy a company-wide Password Manager (Bitwarden, 1Password, or similar)"},{"id":"s03-t00-i003","text":"Require minimum 14-character unique passwords for every account — no reuse"},{"id":"s03-t00-i004","text":"Create separate administrator accounts — never use admin accounts for daily work"},{"id":"s03-t00-i005","text":"Implement Role-Based Access Control (RBAC) based on job functions"},{"id":"s03-t00-i006","text":"Apply the Principle of Least Privilege — users get minimum access needed"},{"id":"s03-t00-i007","text":"Implement Single Sign-On (SSO) for all SaaS tools via Keycloak, Authentik, or cloud IdP"},{"id":"s03-t00-i008","text":"Configure conditional access / device trust policies"},{"id":"s03-t00-i009","text":"Implement Just-in-Time access for privileged operations"},{"id":"s03-t00-i010","text":"Conduct quarterly access reviews for all systems and shared resources"},{"id":"s03-t00-i011","text":"Remove access immediately when employees leave or change roles"},{"id":"s03-t00-i012","text":"Eliminate shared accounts wherever possible; use shared credentials via password manager if unavoidable"},{"id":"s03-t00-i013","text":"Disable inactive accounts after 30-90 days of inactivity"}],"notes":[]},{"id":"s03-t01","title":"3.2 Network Security","description":["Network security creates defensive perimeters and segments your environment to contain breaches. A flat network allows attackers to move freely after compromising a single device."],"checklist":[{"id":"s03-t01-i000","text":"Deploy and configure a business-grade firewall with deny-by-default rules"},{"id":"s03-t01-i001","text":"Disable UPnP on the router/firewall"},{"id":"s03-t01-i002","text":"Restrict port forwarding to absolute minimum — document each rule with justification"},{"id":"s03-t01-i003","text":"Enable and configure host-based firewall (UFW/nftables) on all servers"},{"id":"s03-t01-i004","text":"Implement network segmentation: Employee LAN, Server VLAN, Guest/IoT VLAN, Management VLAN"},{"id":"s03-t01-i005","text":"Deploy a company VPN (WireGuard, OpenVPN, or Tailscale/Headscale) for all remote access"},{"id":"s03-t01-i006","text":"Require VPN for all administrative access to internal systems"},{"id":"s03-t01-i007","text":"Set up isolated Guest Wi-Fi network with client isolation (devices cannot see each other)"},{"id":"s03-t01-i008","text":"Use WPA3 encryption for Wi-Fi (or WPA2-Enterprise with RADIUS if WPA3 unavailable)"},{"id":"s03-t01-i009","text":"Disable WPS (Wi-Fi Protected Setup) on all access points"},{"id":"s03-t01-i010","text":"Change default router/admin passwords on all network devices"},{"id":"s03-t01-i011","text":"Implement a reverse proxy with TLS termination for all public-facing services"},{"id":"s03-t01-i012","text":"Deploy DNS security (DNS sinkhole/blocklist) company-wide for malware/phishing protection"},{"id":"s03-t01-i013","text":"Secure SSH: key-only authentication, disable root login, disable X11 forwarding, restrict to LAN/VPN"},{"id":"s03-t01-i014","text":"Deploy fail2ban or CrowdSec for brute-force protection"},{"id":"s03-t01-i015","text":"Maintain a network diagram and authorized device inventory with MAC addresses"},{"id":"s03-t01-i016","text":"Regularly review and clean up firewall rules — remove obsolete entries"},{"id":"s03-t01-i017","text":"Monitor network traffic for anomalies and unauthorized connections"}],"notes":[]},{"id":"s03-t02","title":"3.3 Endpoint Security","description":["Endpoints are the primary entry points for attacks. Every device connecting to your network must be properly secured and monitored."],"checklist":[{"id":"s03-t02-i000","text":"Deploy Endpoint Detection and Response (EDR) or centrally managed antivirus on all devices"},{"id":"s03-t02-i001","text":"Ensure EDR real-time protection and tamper protection are enabled"},{"id":"s03-t02-i002","text":"Enforce full-disk encryption on all devices (BitLocker/Windows, FileVault/Mac, LUKS/Linux)"},{"id":"s03-t02-i003","text":"Store recovery keys securely in MDM or directory — not locally on the device"},{"id":"s03-t02-i004","text":"Deploy Mobile Device Management (MDM) for all company devices"},{"id":"s03-t02-i005","text":"Enforce automatic screen lock after maximum 5 minutes of inactivity"},{"id":"s03-t02-i006","text":"Remove local administrator rights from standard users"},{"id":"s03-t02-i007","text":"Enable host-based firewall on all endpoints, blocking inbound by default"},{"id":"s03-t02-i008","text":"Enforce automatic OS updates within 30 days of release"},{"id":"s03-t02-i009","text":"Implement patch management for third-party applications"},{"id":"s03-t02-i010","text":"Standardize browser security: disable password saving, force HTTPS, block dangerous downloads"},{"id":"s03-t02-i011","text":"Control or block USB/removable media via policy"},{"id":"s03-t02-i012","text":"Maintain endpoint asset inventory with serial numbers, encryption status, and assigned owners"},{"id":"s03-t02-i013","text":"Deploy application allowlisting or controlled folder access where feasible"}],"notes":[]},{"id":"s03-t03","title":"3.4 Data Protection \u0026 Classification","description":["Data is one of your most valuable assets. Protecting it requires understanding what you have, where it lives, and who can access it."],"checklist":[{"id":"s03-t03-i000","text":"Implement sensitivity labels/classification tags and publish them to document editors"},{"id":"s03-t03-i001","text":"Deploy Data Loss Prevention (DLP) policies in cloud storage and email"},{"id":"s03-t03-i002","text":"Block external sharing of Confidential/Restricted data without approval"},{"id":"s03-t03-i003","text":"Ensure all laptops sync important folders to company cloud storage"},{"id":"s03-t03-i004","text":"Encrypt data at rest on servers, NAS, and backup media"},{"id":"s03-t03-i005","text":"Encrypt data in transit using TLS 1.2 or higher for all connections"},{"id":"s03-t03-i006","text":"Implement secure data deletion procedures when data is no longer needed"},{"id":"s03-t03-i007","text":"Create and maintain a Records of Processing Activities (ROPA) per GDPR Article 30"}],"notes":[]},{"id":"s03-t04","title":"3.5 Email \u0026 Communication Security","description":["Email remains the top attack vector, with 91% of cyberattacks starting with a phishing email. Proper email authentication and protection are essential."],"checklist":[{"id":"s03-t04-i000","text":"Configure SPF record for all company domains"},{"id":"s03-t04-i001","text":"Configure DKIM signing for all outbound email"},{"id":"s03-t04-i002","text":"Configure DMARC policy (start with p=none, progress to p=quarantine, then p=reject)"},{"id":"s03-t04-i003","text":"Enable advanced email protection: sandboxed attachments, malicious link protection"},{"id":"s03-t04-i004","text":"Configure mail-flow rules to block dangerous attachments (.exe, .js, .vbs, macro-enabled docs)"},{"id":"s03-t04-i005","text":"Enable external sender banner warnings on all incoming emails"},{"id":"s03-t04-i006","text":"Block Office macros by default; block macros from the internet"},{"id":"s03-t04-i007","text":"Use secure file sharing instead of email for sensitive documents"}],"notes":[]},{"id":"s03-t05","title":"3.6 AI Infrastructure Security","description":["AI infrastructure, including GPU servers and LLM deployments, requires specialized security controls. These systems often process sensitive data and run powerful models that can be misused if compromised."],"checklist":[{"id":"s03-t05-i000","text":"Implement network segmentation for AI workloads (separate Docker network/VLAN)"},{"id":"s03-t05-i001","text":"No direct access from employee LAN to AI server management interfaces"},{"id":"s03-t05-i002","text":"Deploy secrets management: move from .env files to Docker Secrets, Vault, or Bitwarden Secrets"},{"id":"s03-t05-i003","text":"Ensure .env, .key, .pem, id_rsa files are in .gitignore; scan git history for leaked secrets"},{"id":"s03-t05-i004","text":"Define AI data governance: what company data can be used for fine-tuning or prompting"},{"id":"s03-t05-i005","text":"Implement API rate limiting and authentication on all public AI endpoints"},{"id":"s03-t05-i006","text":"Require authentication on all API endpoints; use OAuth2/OIDC where possible"},{"id":"s03-t05-i007","text":"Implement input validation to prevent prompt injection attacks"},{"id":"s03-t05-i008","text":"Enable output filtering to block sensitive data leakage from LLM responses"},{"id":"s03-t05-i009","text":"Log all access and inference requests with user attribution"},{"id":"s03-t05-i010","text":"Sandbox code-execution features; never allow unrestricted code execution"},{"id":"s03-t05-i011","text":"Implement dependency scanning for AI applications and containers"},{"id":"s03-t05-i012","text":"Regularly scan container images for CVEs (Trivy, Grype)"},{"id":"s03-t05-i013","text":"Ensure AI training/inference environments are isolated from production systems"},{"id":"s03-t05-i014","text":"Monitor GPU resource usage for anomalies (cryptomining detection)"},{"id":"s03-t05-i015","text":"Implement secure model storage and version control for AI models"},{"id":"s03-t05-i016","text":"Document rollback procedures for AI model deployments"}],"notes":[]},{"id":"s03-t06","title":"3.7 Physical Security","description":["Physical security protects the hardware that houses your data and systems. Environmental controls prevent damage from power, temperature, and other physical threats."],"checklist":[{"id":"s03-t06-i000","text":"Secure server room with controlled access (keycard, biometric, or PIN)"},{"id":"s03-t06-i001","text":"Install CCTV cameras covering all entry points and critical equipment"},{"id":"s03-t06-i002","text":"Deploy environmental monitoring: temperature, humidity, water leak sensors"},{"id":"s03-t06-i003","text":"Install UPS (Uninterruptible Power Supply) for critical hardware"},{"id":"s03-t06-i004","text":"Implement rack-level cooling or room air conditioning for server equipment"},{"id":"s03-t06-i005","text":"Install fire detection and suppression systems (inert gas or mist for IT equipment)"},{"id":"s03-t06-i006","text":"Use lockable server racks to prevent unauthorized access"},{"id":"s03-t06-i007","text":"Implement cable management with structured routing through trays/conduits"},{"id":"s03-t06-i008","text":"Secure PDUs and UPS systems in lockable racks"},{"id":"s03-t06-i009","text":"Use Kensington/cable locks for laptops and workstations"},{"id":"s03-t06-i010","text":"Deploy privacy screens for employees working with sensitive data"},{"id":"s03-t06-i011","text":"Implement asset tagging and inventory for all hardware"},{"id":"s03-t06-i012","text":"Conduct regular access control audits for server room"},{"id":"s03-t06-i013","text":"Document emergency procedures for power loss, flooding, or fire"}],"notes":[]}],"checklist":[],"notes":[],"kind":"controls","trackProgress":true},{"id":"s04","title":"DETECT — Monitoring \u0026 Detection","description":["The Detect function enables timely discovery of cybersecurity events. Organizations take an average of 204 days to identify a breach — effective detection reduces this window dramatically."],"topics":[],"checklist":[{"id":"s04-i000","text":"Enable centralized logging from all critical systems (servers, endpoints, firewall, cloud)"},{"id":"s04-i001","text":"Deploy a SIEM or centralized log management (Wazuh, Graylog, ELK, or Loki+Alerting)"},{"id":"s04-i002","text":"Configure alerting rules for: failed logins, sudo escalation, service restarts, firewall changes"},{"id":"s04-i003","text":"Alert on new admin accounts created, MFA disablement, suspicious cloud sign-ins"},{"id":"s04-i004","text":"Implement File Integrity Monitoring (AIDE/Tripwire) on critical system files"},{"id":"s04-i005","text":"Monitor network traffic for anomalies and large data transfers"},{"id":"s04-i006","text":"Review security logs at least weekly"},{"id":"s04-i007","text":"Conduct monthly vulnerability scans (OpenVAS/Nessus for network, Trivy/Grype for containers)"},{"id":"s04-i008","text":"Subscribe to security advisories and threat intelligence feeds"},{"id":"s04-i009","text":"Retain logs for at least 90 days (hot) and 1 year (archived)"}],"notes":[],"kind":"controls","trackProgress":true},{"id":"s05","title":"RESPOND — Incident Response","description":["Despite all preventive measures, incidents will occur. A well-documented incident response plan ensures swift, coordinated action that minimizes damage and recovery time."],"topics":[{"id":"s05-t00","title":"5.1 Incident Response Planning","description":[],"checklist":[{"id":"s05-t00-i000","text":"Create a documented Incident Response Plan covering all phases"},{"id":"s05-t00-i001","text":"Define incident severity levels (P1 Critical, P2 High, P3 Medium, P4 Low) with escalation timelines"},{"id":"s05-t00-i002","text":"Establish an Incident Response Team with defined roles and contact information"},{"id":"s05-t00-i003","text":"Create a communication plan: who to notify internally and externally"},{"id":"s05-t00-i004","text":"Define containment strategies: short-term (stop the bleeding) and long-term (fix root cause)"},{"id":"s05-t00-i005","text":"Document evidence preservation procedures"},{"id":"s05-t00-i006","text":"Establish criteria for reporting to authorities (BSI, law enforcement)"},{"id":"s05-t00-i007","text":"Include GDPR breach notification requirements (72 hours to supervisory authority)"},{"id":"s05-t00-i008","text":"Test the incident response plan annually through tabletop exercises"}],"notes":[]},{"id":"s05-t01","title":"5.2 Incident Response Lifecycle","description":["Category / Phase","Description","Preparation","Establish policies, tools, training, and resources before incidents occur","Detection \u0026 Analysis","Identify and assess the scope and severity of the incident","Containment","Limit damage and prevent further spread (disconnect affected systems, block IPs)","Eradication","Remove malware, close vulnerabilities, clean affected systems","Recovery","Restore systems to normal operation and confirm no residual threats","Post-Incident","Document lessons learned, update procedures, improve defenses"],"checklist":[],"notes":[]}],"checklist":[],"notes":[],"kind":"controls","trackProgress":true},{"id":"s06","title":"RECOVER — Backup \u0026 Disaster Recovery","description":["The Recover function restores capabilities or services impaired by a cybersecurity incident. A robust backup strategy is your last line of defense against ransomware and data loss."],"topics":[{"id":"s06-t00","title":"6.1 Backup Strategy (3-2-1-1-0 Rule)","description":["The modern backup standard extends the classic 3-2-1 rule with immutability and verification: 3 copies of data, on 2 different media types, 1 offsite copy, 1 immutable/air-gapped copy, and 0 errors (verified backups)."],"checklist":[{"id":"s06-t00-i000","text":"Maintain 3 copies of all critical data (1 primary + 2 backups)"},{"id":"s06-t00-i001","text":"Store backups on 2 different media types (e.g., local NAS + cloud storage)"},{"id":"s06-t00-i002","text":"Keep at least 1 backup copy offsite (physically separate location or cloud)"},{"id":"s06-t00-i003","text":"Implement 1 immutable or air-gapped backup copy for ransomware protection"},{"id":"s06-t00-i004","text":"Verify backups have 0 errors through regular restore testing"},{"id":"s06-t00-i005","text":"Define Recovery Time Objectives (RTO) and Recovery Point Objectives (RPO) per system"},{"id":"s06-t00-i006","text":"Encrypt all backup data at rest; protect encryption keys separately from backups"},{"id":"s06-t00-i007","text":"Monitor backup success/failure with automated alerting"},{"id":"s06-t00-i008","text":"Independently back up cloud collaboration data (email, drives, chat)"},{"id":"s06-t00-i009","text":"Test restore procedures quarterly from both local and cloud backups"},{"id":"s06-t00-i010","text":"Document and test the disaster recovery plan annually"}],"notes":[]}],"checklist":[],"notes":[],"kind":"controls","trackProgress":true},{"id":"s07","title":"Compliance \u0026 Legal Requirements","description":["Compliance with applicable laws and regulations is not optional. For organizations handling EU resident data, GDPR imposes specific technical and organizational security requirements."],"topics":[],"checklist":[{"id":"s07-i000","text":"Maintain Records of Processing Activities (ROPA) per GDPR Article 30"},{"id":"s07-i001","text":"Implement data protection by design and by default"},{"id":"s07-i002","text":"Publish a privacy policy on your website"},{"id":"s07-i003","text":"Establish a data breach notification procedure (72h to supervisory authority)"},{"id":"s07-i004","text":"Define procedures for handling data subject access requests"},{"id":"s07-i005","text":"Ensure data processing agreements (DPAs) are in place with all processors"},{"id":"s07-i006","text":"Assign a data protection responsible person (DPO not required for most SMBs but recommended)"},{"id":"s07-i007","text":"Ensure cross-border data transfer compliance"},{"id":"s07-i008","text":"Conduct regular compliance reviews"}],"notes":[],"kind":"controls","trackProgress":true},{"id":"s08","title":"Vendor \u0026 Third-Party Risk Management","description":["Third-party vendors often have access to your data and systems. Their security becomes your security — 35.5% of breaches stem from third-party vulnerabilities."],"topics":[],"checklist":[{"id":"s08-i000","text":"Maintain a vendor register listing all third parties, services provided, and data shared"},{"id":"s08-i001","text":"Classify vendors by criticality tier (Critical, Important, Standard, Low)"},{"id":"s08-i002","text":"Assess vendor security posture before onboarding (questionnaire, certifications)"},{"id":"s08-i003","text":"Verify vendor compliance certifications (SOC 2, ISO 27001) where relevant"},{"id":"s08-i004","text":"Ensure data processing agreements (DPAs) exist for all vendors processing personal data"},{"id":"s08-i005","text":"Review vendor incident response plans and breach notification commitments"},{"id":"s08-i006","text":"Monitor critical vendors quarterly, important vendors semi-annually"},{"id":"s08-i007","text":"Track SLA adherence, security incidents, and compliance deviations"},{"id":"s08-i008","text":"Develop exit strategies for critical vendors to ensure business continuity"}],"notes":[],"kind":"controls","trackProgress":true},{"id":"s09","title":"Security Awareness \u0026 Training","description":["Over 80% of breaches involve a human element. Employees are your first line of defense — when properly trained. Security awareness transforms your workforce from a vulnerability into a detection capability."],"topics":[],"checklist":[{"id":"s09-i000","text":"Conduct security awareness training for all employees at onboarding"},{"id":"s09-i001","text":"Provide annual security awareness refresher training for all staff"},{"id":"s09-i002","text":"Run quarterly phishing simulation exercises"},{"id":"s09-i003","text":"Train employees to recognize: phishing, social engineering, suspicious links/attachments"},{"id":"s09-i004","text":"Establish a clear process for reporting security incidents and suspicious activity"},{"id":"s09-i005","text":"Provide role-based training for privileged users and administrators"},{"id":"s09-i006","text":"Train on secure remote work practices and VPN usage"},{"id":"s09-i007","text":"Measure training effectiveness through quizzes and phishing click-rate tracking"},{"id":"s09-i008","text":"Document training completion and maintain records for compliance"}],"notes":[],"kind":"controls","trackProgress":true},{"id":"s10","title":"Implementation Roadmap","description":["Security implementation should be phased to manage resources and risk effectively. Start with the highest-impact, lowest-effort controls and build from there.","Category / Phase","Description","Phase 1: Foundation","Asset inventory, MFA deployment, password manager, firewall config, default password changes, critical patching","Phase 2: Hardening","VPN deployment, network segmentation, disk encryption, MDM enrollment, EDR deployment, SSH hardening","Phase 3: Protection","DLP policies, email authentication (SPF/DKIM/DMARC), secrets management, AI security, backup immutability","Phase 4: Detection (Months 4-6)","Centralized logging, SIEM deployment, FIM, vulnerability scanning program, alerting rules","Phase 5: Governance","Incident response plan, security policies, risk register, vendor assessments, GDPR documentation","Phase 6: Continuous (Ongoing)","Quarterly access reviews, monthly vulnerability scans, quarterly phishing tests, annual policy review, IR tabletop exercises"],"topics":[],"checklist":[],"notes":[],"kind":"roadmap","trackProgress":false},{"id":"s11","title":"Master Checklist Summary","description":["This consolidated checklist provides a quick-reference overview of all security items in this framework. Use it for management reporting and progress tracking."],"topics":[{"id":"s11-t00","title":"Critical Priority (Address Immediately)","description":[],"checklist":[{"id":"s11-t00-i000","text":"Enable MFA on all business accounts (especially email and admin)"},{"id":"s11-t00-i001","text":"Deploy password manager and enforce strong unique passwords"},{"id":"s11-t00-i002","text":"Change all default passwords on routers, servers, and applications"},{"id":"s11-t00-i003","text":"Enable firewalls (network and host-based) with deny-by-default"},{"id":"s11-t00-i004","text":"Patch critical vulnerabilities within 48-72 hours"},{"id":"s11-t00-i005","text":"Implement backup strategy with offsite and immutable copies"},{"id":"s11-t00-i006","text":"Secure SSH and remote access (key-based, VPN-only)"},{"id":"s11-t00-i007","text":"Segment guest/IoT network from company LAN"},{"id":"s11-t00-i008","text":"Deploy endpoint protection (EDR/antivirus) on all devices"},{"id":"s11-t00-i009","text":"Enable disk encryption on all laptops and mobile devices"}],"notes":[]},{"id":"s11-t01","title":"High Priority (Within 4-7 Days)","description":[],"checklist":[{"id":"s11-t01-i000","text":"Deploy company VPN for all remote access"},{"id":"s11-t01-i001","text":"Implement MDM for all company devices"},{"id":"s11-t01-i002","text":"Configure SPF, DKIM, and DMARC for email domains"},{"id":"s11-t01-i003","text":"Deploy secrets management for credentials and API keys"},{"id":"s11-t01-i004","text":"Implement network segmentation (employee, server, guest VLANs)"},{"id":"s11-t01-i005","text":"Enable centralized logging and monitoring"},{"id":"s11-t01-i006","text":"Create incident response plan with defined roles"},{"id":"s11-t01-i007","text":"Establish access review process"},{"id":"s11-t01-i008","text":"Document and classify critical data assets"},{"id":"s11-t01-i009","text":"Implement DLP policies for sensitive data"}],"notes":[]},{"id":"s11-t02","title":"Medium Priority","description":[],"checklist":[{"id":"s11-t02-i000","text":"Deploy SIEM with alerting rules"},{"id":"s11-t02-i001","text":"Implement file integrity monitoring"},{"id":"s11-t02-i002","text":"Conduct security awareness training program"},{"id":"s11-t02-i003","text":"Establish vendor risk management process"},{"id":"s11-t02-i004","text":"Complete GDPR compliance documentation"},{"id":"s11-t02-i005","text":"Implement vulnerability management program with regular scans"},{"id":"s11-t02-i006","text":"Deploy advanced email protection"},{"id":"s11-t02-i007","text":"Harden AI infrastructure and implement model governance"},{"id":"s11-t02-i008","text":"Implement physical security controls for server room"},{"id":"s11-t02-i009","text":"Conduct risk assessment and establish risk register"}],"notes":[]},{"id":"s11-t03","title":"Ongoing Activities","description":[],"checklist":[{"id":"s11-t03-i000","text":"Vulnerability scanning: monthly"},{"id":"s11-t03-i001","text":"Patch management: weekly for critical, monthly for others"},{"id":"s11-t03-i002","text":"Backup restore testing: quarterly"},{"id":"s11-t03-i003","text":"Phishing simulations: quarterly"},{"id":"s11-t03-i004","text":"Security awareness training: annual + onboarding"},{"id":"s11-t03-i005","text":"Access reviews: quarterly"},{"id":"s11-t03-i006","text":"Policy review: annual"},{"id":"s11-t03-i007","text":"Incident response tabletop exercise: annual"},{"id":"s11-t03-i008","text":"Risk register review: quarterly"},{"id":"s11-t03-i009","text":"Vendor security reviews: quarterly for critical vendors"}],"notes":["IT Security Framework","Comprehensive Checklist \u0026 Implementation Guide","Version 1.0  |  June 2026","Confidential — Internal Use Only","Frameworks: NIST CSF 2.0 | ISO 27001 | CIS Controls | BSI IT-Grundschutz"]}],"checklist":[],"notes":[],"kind":"priority","trackProgress":false}]},"de":{"code":"de","source":"IT_Security_Framework_DE.docx","title":"IT-Sicherheits Rahmenwerk","subtitle":"Umfassende Sicherheits-Checkliste \u0026 Implementierungsleitfaden","version":"Version 1.0  |  Juni 2026","sections":[{"id":"s00","title":"Zusammenfassung","description":["Dieses Dokument stellt ein umfassendes IT-Sicherheitsrahmenwerk bereit, das für Organisationen konzipiert ist, die ihre Sicherheitsreise von Grund auf beginnen. Es ist am NIST Cybersecurity Framework 2.0 (Govern, Identify, Protect, Detect, Respond, Recover) ausgerichtet und integriert Branchenbest Practices aus ISO 27001, CIS Controls und BSI IT-Grundschutz.","Das Rahmenwerk deckt alle kritischen Sicherheitsdomänen ab: Governance und Risikomanagement, Asset-Inventar, Identitäts- und Zugriffsmanagement, Netzwerksicherheit, Endpunktschutz, Datenschutz, E-Mail-Sicherheit, KI-Infrastruktursicherheit, physische Sicherheit, Überwachung und Erkennung, Vorfallsreaktion, Backup und Notfallwiederherstellung, Compliance (DSGVO), Lieferantenrisikomanagement und Sicherheitsbewusstseins-Schulung.","Jeder Abschnitt enthält umsetzbare Checklistenpunkte, die als Offen (nicht gestartet), In Bearbeitung oder Abgeschlossen markiert werden können. Verwenden Sie dieses Dokument als lebendige Referenz, um die Verbesserung Ihrer organisationsweiten Sicherheitslage im Zeitverlauf zu verfolgen.","Kategorie / Phase","Beschreibung","Kritische Punkte","Hochriskante Punkte, die sofortige Aufmerksamkeit erfordern","Hohe Priorität","Wichtige Punkte, die innerhalb von 4-7 Tagen angegangen werden sollten","Mittlere Priorität","Punkte, die innerhalb von 10-15 Tagen umgesetzt werden sollten","Laufend","Kontinuierliche Aktivitäten, die regelmäßige Aufmerksamkeit erfordern"],"topics":[],"checklist":[],"notes":[],"kind":"summary","trackProgress":false},{"id":"s01","title":"GOVERN — Sicherheits-Governance \u0026 Risikomanagement","description":["Governance ist das Fundament jedes Sicherheitsprogramms. Sie etabliert die Organisationsstruktur, Richtlinien und Prozesse, die für ein effektives Management von Cybersecurity-Risiken erforderlich sind. Ohne Governance werden Sicherheitsaktivitäten ad-hoc und inkonsistent."],"topics":[{"id":"s01-t00","title":"1.1 Sicherheitsführung \u0026 Rollen","description":[],"checklist":[{"id":"s01-t00-i000","text":"Einen Informationssicherheitsbeauftragten (ISO) oder Sicherheitsverantwortlichen benennen, der das Sicherheitsprogramm überwacht"},{"id":"s01-t00-i001","text":"Befugnisse, Verantwortlichkeiten und Berichtslinien des ISO gegenüber dem Management definieren"},{"id":"s01-t00-i002","text":"Ein Sicherheitskomitee oder regelmäßige Sicherheitsreview-Meetings mit wichtigen Stakeholdern etablieren"},{"id":"s01-t00-i003","text":"Rollen und Verantwortlichkeiten aller Mitarbeiter bezüglich Informationssicherheit dokumentieren"},{"id":"s01-t00-i004","text":"Sicherstellen, dass das Management sein Engagement für Sicherheit durch Ressourcenbereitstellung und Richtlinienunterstützung demonstriert"}],"notes":[]},{"id":"s01-t01","title":"1.2 Sicherheitsrichtlinien \u0026 Verfahren","description":[],"checklist":[{"id":"s01-t01-i000","text":"Informationssicherheitsrichtlinie erstellen mit Zweck, Geltungsbereich, Rollen und Zielen"},{"id":"s01-t01-i001","text":"Nutzungsrichtlinie (Acceptable Use Policy) festlegen: Zulässige Nutzung von Systemen, Geräten und Daten"},{"id":"s01-t01-i002","text":"Passwortrichtlinie definieren: Mindestens 14 Zeichen, Eindeutigkeit pro Konto, MFA-Zwang"},{"id":"s01-t01-i003","text":"Remote-Arbeitsrichtlinie erstellen: VPN-Nutzung, Gerätesicherheit, Home-Office-Anforderungen"},{"id":"s01-t01-i004","text":"Datenklassifizierungsrichtlinie mit mindestens 4 Stufen: Öffentlich, Intern, Vertraulich, Streng Vertraulich"},{"id":"s01-t01-i005","text":"Zugriffssteuerungsrichtlinie dokumentieren: Least-Privilege- und Need-to-Know-Prinzip"},{"id":"s01-t01-i006","text":"Change-Management-Richtlinie für kontrollierte Änderungen an Systemen und Konfigurationen"},{"id":"s01-t01-i007","text":"Software-Installationsrichtlinie etablieren: Genehmigung für Nicht-Standard-Software erforderlich"},{"id":"s01-t01-i008","text":"Lieferantenmanagement-Richtlinie für Drittanbieter-Risikobewertung dokumentieren"},{"id":"s01-t01-i009","text":"Sicherstellen, dass alle Richtlinien jährlich überprüft und bei signifikanten Änderungen aktualisiert werden"}],"notes":[]},{"id":"s01-t02","title":"1.3 Risikomanagement","description":[],"checklist":[{"id":"s01-t02-i000","text":"Risikobewertungsprozess etablieren: mindestens jährlich oder nach signifikanten Änderungen"},{"id":"s01-t02-i001","text":"Risikoregister erstellen und pflegen: identifizierte Risiken, Eintrittswahrscheinlichkeit, Auswirkung, Migrationsstatus"},{"id":"s01-t02-i002","text":"Risikobewertungsmethodik implementieren (z.B. Skala 1-5 für Wahrscheinlichkeit und Auswirkung)"},{"id":"s01-t02-i003","text":"Risikobehandlungsoptionen definieren: Akzeptieren, Minderung, Transfer oder Vermeidung"},{"id":"s01-t02-i004","text":"Risikoakzeptanzentscheidungen mit Management-Genehmigung und Begründung dokumentieren"},{"id":"s01-t02-i005","text":"Risikoregister vierteljährlich überprüfen und aktualisieren"}],"notes":[]},{"id":"s01-t03","title":"1.4 Rechtliche \u0026 Regulatorische Compliance","description":[],"checklist":[{"id":"s01-t03-i000","text":"Register rechtlicher und vertraglicher Anforderungen führen"},{"id":"s01-t03-i001","text":"Anwendbare Vorschriften identifizieren (DSGVO, branchenspezifische Anforderungen)"},{"id":"s01-t03-i002","text":"Einhaltung von Datenschutzgesetzen für alle verarbeiteten personenbezogenen Daten sicherstellen"},{"id":"s01-t03-i003","text":"Cyber-Versicherungsschutz abschließen"},{"id":"s01-t03-i004","text":"Compliance-Überwachung und Review-Prozesse dokumentieren"}],"notes":[]}],"checklist":[],"notes":[],"kind":"controls","trackProgress":true},{"id":"s02","title":"IDENTIFY — Asset-Management \u0026 Risikobewertung","description":["Man kann nicht schützen, was man nicht kennt. Die Identify-Funktion konzentriert sich darauf, ein organisationsweites Verständnis der Systeme, Assets, Daten und Fähigkeiten zu entwickeln, die geschützt werden müssen."],"topics":[{"id":"s02-t00","title":"2.1 Asset-Inventar","description":[],"checklist":[{"id":"s02-t00-i000","text":"Hardware-Asset-Inventar erstellen und pflegen (Computer, Laptops, Server, Mobilgeräte, Router, Drucker, IoT)"},{"id":"s02-t00-i001","text":"Software-Asset-Inventar dokumentieren (Betriebssysteme, Geschäftsanwendungen, Cloud-Dienste)"},{"id":"s02-t00-i002","text":"In Asset-Datensätze aufnehmen: Eigentümer, Standort, OS-Version, Software-Versionen, letztes Update-Datum"},{"id":"s02-t00-i003","text":"Dateninventar führen: Welche Daten existieren, wo werden sie gespeichert, wer hat Zugriff"},{"id":"s02-t00-i004","text":"Netzwerkdiagramm erstellen mit allen Netzwerksegmenten, Geräten und Verbindungen"},{"id":"s02-t00-i005","text":"Alle Cloud-Dienste und SaaS-Anwendungen im Einsatz dokumentieren"},{"id":"s02-t00-i006","text":"Asset-Inventare vierteljährlich überprüfen und aktualisieren"}],"notes":[]},{"id":"s02-t01","title":"2.2 Datenklassifizierung","description":[],"checklist":[{"id":"s02-t01-i000","text":"4-Stufen-Klassifizierung umsetzen: Öffentlich, Intern, Vertraulich, Streng Vertraulich"},{"id":"s02-t01-i001","text":"Handhabungsregeln pro Klassifizierungsstufe definieren (Speicherort, Zugriffsrechte, Verschlüsselung, Aufbewahrung)"},{"id":"s02-t01-i002","text":"Kritische Datenassets mappen: Kundendaten, Verträge, Finanzen, HR-Daten, Quellcode, KI-Modellgewichte"},{"id":"s02-t01-i003","text":"Dokumente und Dateien entsprechend ihrer Klassifizierungsstufe kennzeichnen oder taggen"},{"id":"s02-t01-i004","text":"Datenaufbewahrungs- und Löschrichtlinie gemäß DSGVO-Anforderungen erstellen"}],"notes":[]},{"id":"s02-t02","title":"2.3 Risikobewertung","description":[],"checklist":[{"id":"s02-t02-i000","text":"Kritische Geschäftsassets und deren Wert für die Organisation identifizieren"},{"id":"s02-t02-i001","text":"Bedrohungen identifizieren: Cyberangriffe, Insider-Bedrohungen, Naturkatastrophen, Systemausfälle"},{"id":"s02-t02-i002","text":"Schwachstellen identifizieren: Ungepatchte Systeme, schwache Passwörter, fehlende Überwachung"},{"id":"s02-t02-i003","text":"Bestehende Sicherheitskontrollen und deren Wirksamkeit bewerten"},{"id":"s02-t02-i004","text":"Risikostufen bestimmen und nach Geschäftsauswirkung priorisieren"},{"id":"s02-t02-i005","text":"Risikobewertungsergebnisse und Minderungspläne dokumentieren"}],"notes":[]}],"checklist":[],"notes":[],"kind":"controls","trackProgress":true},{"id":"s03","title":"PROTECT — Sicherheitskontrollen","description":["Die Protect-Funktion implementiert Schutzmaßnahmen zur Prävention oder Reduzierung von Cybersecurity-Risiken. Dies ist der umfangreichste Abschnitt und deckt Identitätsmanagement, Netzwerksicherheit, Endpunktschutz, Datenschutz, E-Mail-Sicherheit, KI-Infrastruktur und physische Sicherheit ab."],"topics":[{"id":"s03-t00","title":"3.1 Identitäts- \u0026 Zugriffsmanagement (IAM)","description":["Identitäts- und Zugriffsmanagement ist das Fundament der Sicherheit. Schwache oder kompromittierte Anmeldedaten bleiben die führende Ursache von Datenschutzverletzungen — 86% aller Verletzungen beinhalten gestohlene Anmeldedaten."],"checklist":[{"id":"s03-t00-i000","text":"Multi-Faktor-Authentifizierung (MFA) auf ALLEN Konten erzwingen — E-Mail, Finanzsysteme, Cloud-Speicher, Admin-Konten"},{"id":"s03-t00-i001","text":"FIDO2/Hardware-Sicherheitsschlüssel für privilegierte/Admin-Konten verwenden, wo möglich"},{"id":"s03-t00-i002","text":"Passwort-Manager unternehmensweit einführen (Bitwarden, 1Password oder vergleichbar)"},{"id":"s03-t00-i003","text":"Mindestens 14-stellige eindeutige Passwörter für jedes Konto erzwingen — keine Wiederverwendung"},{"id":"s03-t00-i004","text":"Separate Administrator-Konten erstellen — Admin-Konten niemals für tägliche Arbeit verwenden"},{"id":"s03-t00-i005","text":"Rollenbasierte Zugriffssteuerung (RBAC) basierend auf Aufgabenbereichen implementieren"},{"id":"s03-t00-i006","text":"Least-Privilege-Prinzip anwenden — Benutzer erhalten minimale Zugriffsrechte"},{"id":"s03-t00-i007","text":"Single Sign-On (SSO) für alle SaaS-Tools über Keycloak, Authentik oder Cloud-IdP implementieren"},{"id":"s03-t00-i008","text":"Bedingten Zugriff / Gerätevertrauen konfigurieren"},{"id":"s03-t00-i009","text":"Just-in-Time-Zugriff für privilegierte Operationen implementieren"},{"id":"s03-t00-i010","text":"Vierteljährliche Zugriffsreviews für alle Systeme und gemeinsam genutzte Ressourcen durchführen"},{"id":"s03-t00-i011","text":"Zugriff sofort entziehen, wenn Mitarbeiter ausscheiden oder die Rolle wechseln"},{"id":"s03-t00-i012","text":"Gemeinsame Konten nach Möglichkeit eliminieren; Shared Credentials über Passwort-Manager falls unvermeidbar"},{"id":"s03-t00-i013","text":"Inaktive Konten nach 30-90 Tagen Inaktivität deaktivieren"}],"notes":[]},{"id":"s03-t01","title":"3.2 Netzwerksicherheit","description":["Netzwerksicherheit schafft defensive Perimeter und segmentiert die Umgebung, um Verletzungen einzudämmen. Ein flaches Netzwerk ermöglicht Angreifern nach Kompromittierung eines einzigen Geräts die freie Bewegung."],"checklist":[{"id":"s03-t01-i000","text":"Business-Grade-Firewall mit Default-Deny-Regeln einrichten und konfigurieren"},{"id":"s03-t01-i001","text":"UPnP am Router/Firewall deaktivieren"},{"id":"s03-t01-i002","text":"Port-Weiterleitungen auf absolutes Minimum beschränken — jede Regel mit Begründung dokumentieren"},{"id":"s03-t01-i003","text":"Host-basierte Firewall (UFW/nftables) auf allen Servern aktivieren und konfigurieren"},{"id":"s03-t01-i004","text":"Netzwerksegmentierung implementieren: Mitarbeiter-LAN, Server-VLAN, Gast/IoT-VLAN, Management-VLAN"},{"id":"s03-t01-i005","text":"Unternehmens-VPN (WireGuard, OpenVPN oder Tailscale/Headscale) für alle Remote-Zugriffe einrichten"},{"id":"s03-t01-i006","text":"VPN für alle administrativen Zugriffe auf interne Systeme vorschreiben"},{"id":"s03-t01-i007","text":"Isoliertes Gast-WLAN mit Client-Isolation einrichten (Geräte können einander nicht sehen)"},{"id":"s03-t01-i008","text":"WPA3-Verschlüsselung für Wi-Fi verwenden (oder WPA2-Enterprise mit RADIUS falls WPA3 nicht verfügbar)"},{"id":"s03-t01-i009","text":"WPS (Wi-Fi Protected Setup) auf allen Access Points deaktivieren"},{"id":"s03-t01-i010","text":"Standard-Router/Admin-Passwörter auf allen Netzwerkgeräten ändern"},{"id":"s03-t01-i011","text":"Reverse-Proxy mit TLS-Terminierung für alle öffentlich erreichbaren Dienste implementieren"},{"id":"s03-t01-i012","text":"DNS-Sicherheit (DNS-Sinkhole/Blockliste) unternehmensweit für Malware/Phishing-Schutz einrichten"},{"id":"s03-t01-i013","text":"SSH absichern: Schlüssel-basiert, Root-Login deaktivieren, X11-Weiterleitung deaktivieren, auf LAN/VPN beschränken"},{"id":"s03-t01-i014","text":"fail2ban oder CrowdSec für Brute-Force-Schutz einrichten"},{"id":"s03-t01-i015","text":"Netzwerkdiagramm und Inventar autorisierter Geräte mit MAC-Adressen führen"},{"id":"s03-t01-i016","text":"Firewall-Regeln regelmäßig überprüfen und bereinigen — veraltete Einträge entfernen"},{"id":"s03-t01-i017","text":"Netzwerkverkehr auf Anomalien und unautorisierte Verbindungen überwachen"}],"notes":[]},{"id":"s03-t02","title":"3.3 Endpunktsicherheit","description":["Endpunkte sind die primären Eintrittspunkte für Angriffe. Jedes Gerät, das sich mit dem Netzwerk verbindet, muss ordnungsgemäß gesichert und überwacht werden."],"checklist":[{"id":"s03-t02-i000","text":"Endpoint Detection and Response (EDR) oder zentral verwaltete Antivirus-Lösung auf allen Geräten einrichten"},{"id":"s03-t02-i001","text":"EDR-Echtzeitschutz und Manipulationsschutz aktivieren"},{"id":"s03-t02-i002","text":"Full-Disk-Verschlüsselung auf allen Geräten erzwingen (BitLocker/Windows, FileVault/Mac, LUKS/Linux)"},{"id":"s03-t02-i003","text":"Wiederherstellungsschlüssel sicher in MDM oder Verzeichnis speichern — nicht lokal auf dem Gerät"},{"id":"s03-t02-i004","text":"Mobile Device Management (MDM) für alle Unternehmensgeräte einrichten"},{"id":"s03-t02-i005","text":"Automatische Bildschirmsperre nach maximal 5 Minuten Inaktivität erzwingen"},{"id":"s03-t02-i006","text":"Lokale Administratorrechte von Standardbenutzern entziehen"},{"id":"s03-t02-i007","text":"Host-basierte Firewall auf allen Endpunkten aktivieren, eingehende Verbindungen blockieren"},{"id":"s03-t02-i008","text":"Automatische OS-Updates innerhalb von 30 Tagen nach Release erzwingen"},{"id":"s03-t02-i009","text":"Patch-Management für Drittanbieter-Anwendungen implementieren"},{"id":"s03-t02-i010","text":"Browser-Sicherheit standardisieren: Passwortspeicher deaktivieren, HTTPS erzwingen, gefährliche Downloads blockieren"},{"id":"s03-t02-i011","text":"USB/Wechselmedien über Richtlinie kontrollieren oder blockieren"},{"id":"s03-t02-i012","text":"Endpunkt-Inventar mit Seriennummern, Verschlüsselungsstatus und zugewiesenen Eigentümern führen"},{"id":"s03-t02-i013","text":"Application-Allowlisting oder Controlled Folder Access wo machbar einrichten"}],"notes":[]},{"id":"s03-t03","title":"3.4 Datenschutz \u0026 Klassifizierung","description":["Daten sind eines der wertvollsten Assets. Ihr Schutz erfordert ein Verständnis dessen, was man hat, wo es sich befindet und wer darauf zugreifen kann."],"checklist":[{"id":"s03-t03-i000","text":"Vertraulichkeitskennzeichnungen/Klassifizierungstags implementieren und in Textverarbeitungen verfügbar machen"},{"id":"s03-t03-i001","text":"Data Loss Prevention (DLP)-Richtlinien in Cloud-Speicher und E-Mail einrichten"},{"id":"s03-t03-i002","text":"Externes Teilen von Vertraulichen/Streng Vertraulichen Daten ohne Genehmigung blockieren"},{"id":"s03-t03-i003","text":"Sicherstellen, dass alle Laptops wichtige Ordner mit dem Unternehmens-Cloud-Speicher synchronisieren"},{"id":"s03-t03-i004","text":"Daten im Ruhezustand auf Servern, NAS und Backup-Medien verschlüsseln"},{"id":"s03-t03-i005","text":"Daten in Transit mit TLS 1.2 oder höher für alle Verbindungen verschlüsseln"},{"id":"s03-t03-i006","text":"Sichere Datenlöschverfahren implementieren, wenn Daten nicht mehr benötigt werden"},{"id":"s03-t03-i007","text":"Verzeichnis von Verarbeitungstätigkeiten (VVT) gemäß DSGVO Artikel 30 führen"}],"notes":[]},{"id":"s03-t04","title":"3.5 E-Mail- \u0026 Kommunikationssicherheit","description":["E-Mail bleibt der wichtigste Angriffsvektor — 91% aller Cyberangriffe beginnen mit einer Phishing-E-Mail. Ordentliche E-Mail-Authentifizierung und -Schutz sind unerlässlich."],"checklist":[{"id":"s03-t04-i000","text":"SPF-Record für alle Unternehmensdomains konfigurieren"},{"id":"s03-t04-i001","text":"DKIM-Signierung für alle ausgehenden E-Mails einrichten"},{"id":"s03-t04-i002","text":"DMARC-Richtlinie konfigurieren (Start mit p=none, Fortschritt zu p=quarantine, dann p=reject)"},{"id":"s03-t04-i003","text":"Erweiterten E-Mail-Schutz aktivieren: Sandbox-Anhänge, Schutz vor bösartigen Links"},{"id":"s03-t04-i004","text":"Mail-Flow-Regeln konfigurieren, um gefährliche Anhänge zu blockieren (.exe, .js, .vbs, Makro-Dokumente)"},{"id":"s03-t04-i005","text":"Warnhinweis für externe Absender auf allen eingehenden E-Mails aktivieren"},{"id":"s03-t04-i006","text":"Office-Makros standardmäßig blockieren; Makros aus dem Internet blockieren"},{"id":"s03-t04-i007","text":"Sichere Dateifreigabe statt E-Mail für vertrauliche Dokumente verwenden"}],"notes":[]},{"id":"s03-t05","title":"3.6 KI-Infrastruktursicherheit","description":["KI-Infrastruktur, einschließlich GPU-Server und LLM-Deployments, erfordert spezialisierte Sicherheitskontrollen. Diese Systeme verarbeiten häufig sensible Daten und führen leistungsstarke Modelle aus, die bei Kompromittierung missbraucht werden können."],"checklist":[{"id":"s03-t05-i000","text":"Netzwerksegmentierung für KI-Workloads implementieren (separates Docker-Netzwerk/VLAN)"},{"id":"s03-t05-i001","text":"Kein direkter Zugriff vom Mitarbeiter-LAN auf KI-Server-Management-Oberflächen"},{"id":"s03-t05-i002","text":"Secrets-Management einführen: Weg von .env-Dateien hin zu Docker Secrets, Vault oder Bitwarden Secrets"},{"id":"s03-t05-i003","text":"Sicherstellen, dass .env, .key, .pem, id_rsa in .gitignore stehen; Git-History auf geleakte Secrets scannen"},{"id":"s03-t05-i004","text":"KI-Daten-Governance definieren: Welche Unternehmensdaten dürfen für Fine-Tuning oder Prompting verwendet werden"},{"id":"s03-t05-i005","text":"API-Rate-Limiting und Authentifizierung auf allen öffentlichen KI-Endpunkten implementieren"},{"id":"s03-t05-i006","text":"Authentifizierung auf allen API-Endpunkten erzwingen; OAuth2/OIDC wo möglich verwenden"},{"id":"s03-t05-i007","text":"Input-Validierung implementieren, um Prompt-Injection-Angriffe zu verhindern"},{"id":"s03-t05-i008","text":"Output-Filterung aktivieren, um Datenlecks aus LLM-Antworten zu blockieren"},{"id":"s03-t05-i009","text":"Alle Zugriffe und Inferenz-Anfragen mit Benutzerzuordnung protokollieren"},{"id":"s03-t05-i010","text":"Code-Ausführungsfunktionen sandoxen; niemals uneingeschränkte Code-Ausführung erlauben"},{"id":"s03-t05-i011","text":"Dependency-Scanning für KI-Anwendungen und Container implementieren"},{"id":"s03-t05-i012","text":"Container-Images regelmäßig auf CVEs scannen (Trivy, Grype)"},{"id":"s03-t05-i013","text":"KI-Trainings-/Inferenz-Umgebungen von Produktionssystemen isolieren"},{"id":"s03-t05-i014","text":"GPU-Ressourcennutzung auf Anomalien überwachen (Cryptomining-Erkennung)"},{"id":"s03-t05-i015","text":"Sichere Modellspeicherung und Versionskontrolle für KI-Modelle implementieren"},{"id":"s03-t05-i016","text":"Rollback-Verfahren für KI-Modell-Deployments dokumentieren"}],"notes":[]},{"id":"s03-t06","title":"3.7 Physische Sicherheit","description":["Physische Sicherheit schützt die Hardware, die Daten und Systeme beherbergt. Umgebungskontrollen verhindern Schäden durch Strom, Temperatur und andere physische Bedrohungen."],"checklist":[{"id":"s03-t06-i000","text":"Serverraum mit kontrolliertem Zugang sichern (Keycard, Biometrie oder PIN)"},{"id":"s03-t06-i001","text":"CCTV-Kameras an allen Zugangspunkten und kritischer Ausrüstung installieren"},{"id":"s03-t06-i002","text":"Umgebungsüberwachung einrichten: Temperatur, Luftfeuchtigkeit, Wassereinbruch-Sensoren"},{"id":"s03-t06-i003","text":"USV (Unterbrechungsfreie Stromversorgung) für kritische Hardware installieren"},{"id":"s03-t06-i004","text":"Rack-basierte Kühlung oder Raumklimatisierung für Serverausrüstung implementieren"},{"id":"s03-t06-i005","text":"Brandmelde- und Löschanlagen installieren (Inertgas oder Nebel für IT-Ausrüstung)"},{"id":"s03-t06-i006","text":"Abschließbare Server-Racks verwenden, um unautorisierten Zugriff zu verhindern"},{"id":"s03-t06-i007","text":"Kabelmanagement mit strukturierter Verlegung durch Kabelkanäle/Schlitze"},{"id":"s03-t06-i008","text":"PDUs und USV-Systeme in abschließbaren Racks sichern"},{"id":"s03-t06-i009","text":"Kensington-/Kabelschlösser für Laptops und Workstations verwenden"},{"id":"s03-t06-i010","text":"Blickschutzfilter für Mitarbeiter einsetzen, die mit sensiblen Daten arbeiten"},{"id":"s03-t06-i011","text":"Asset-Tagging und Inventar für gesamte Hardware implementieren"},{"id":"s03-t06-i012","text":"Regelmäßige Zugangskontroll-Audits für den Serverraum durchführen"},{"id":"s03-t06-i013","text":"Notfallverfahren für Stromausfall, Überflutung oder Brand dokumentieren"}],"notes":[]}],"checklist":[],"notes":[],"kind":"controls","trackProgress":true},{"id":"s04","title":"DETECT — Überwachung \u0026 Erkennung","description":["Die Detect-Funktion ermöglicht die rechtzeitige Entdeckung von Cybersecurity-Ereignissen. Organisationen benötigen im Durchschnitt 204 Tage, um eine Verletzung zu identifizieren — effektive Erkennung reduziert dieses Fenster dramatisch."],"topics":[],"checklist":[{"id":"s04-i000","text":"Zentrale Protokollierung von allen kritischen Systemen aktivieren (Server, Endpunkte, Firewall, Cloud)"},{"id":"s04-i001","text":"SIEM oder zentrales Log-Management einrichten (Wazuh, Graylog, ELK oder Loki+Alerting)"},{"id":"s04-i002","text":"Alarmierungsregeln konfigurieren für: Fehlgeschlagene Logins, sudo-Eskalationen, Service-Neustarts, Firewall-Änderungen"},{"id":"s04-i003","text":"Alarm bei neuen Admin-Konten, MFA-Deaktivierung, verdächtigen Cloud-Anmeldungen"},{"id":"s04-i004","text":"File Integrity Monitoring (AIDE/Tripwire) auf kritischen Systemdateien implementieren"},{"id":"s04-i005","text":"Netzwerkverkehr auf Anomalien und große Datenübertragungen überwachen"},{"id":"s04-i006","text":"Sicherheits-Logs mindestens wöchentlich überprüfen"},{"id":"s04-i007","text":"Monatliche Schwachstellenscans durchführen (OpenVAS/Nessus für Netzwerk, Trivy/Grype für Container)"},{"id":"s04-i008","text":"Sicherheits-Advisories und Threat-Intelligence-Feeds abonnieren"},{"id":"s04-i009","text":"Logs mindestens 90 Tage (hot) und 1 Jahr (archiviert) aufbewahren"}],"notes":[],"kind":"controls","trackProgress":true},{"id":"s05","title":"RESPOND — Vorfallsreaktion","description":["Trotz aller präventiven Maßnahmen werden Vorfälle auftreten. Ein gut dokumentierter Vorfallsreaktionsplan gewährleistet schnelles, koordiniertes Handeln, das Schaden und Wiederherstellungszeit minimiert."],"topics":[{"id":"s05-t00","title":"5.1 Vorfallsreaktionsplanung","description":[],"checklist":[{"id":"s05-t00-i000","text":"Dokumentierten Vorfallsreaktionsplan erstellen, der alle Phasen abdeckt"},{"id":"s05-t00-i001","text":"Vorfalls-Schweregrade definieren (P1 Kritisch, P2 Hoch, P3 Mittel, P4 Niedrig) mit Eskalationszeitvorgaben"},{"id":"s05-t00-i002","text":"Vorfallsreaktions-Team mit definierten Rollen und Kontaktinformationen etablieren"},{"id":"s05-t00-i003","text":"Kommunikationsplan erstellen: Wer intern und extern benachrichtigt wird"},{"id":"s05-t00-i004","text":"Containment-Strategien definieren: Kurzfristig (Blutung stoppen) und Langfristig (Ursache beheben)"},{"id":"s05-t00-i005","text":"Verfahren zur Beweissicherung dokumentieren"},{"id":"s05-t00-i006","text":"Kriterien für Meldung an Behörden (BSI, Strafverfolgung) festlegen"},{"id":"s05-t00-i007","text":"DSGVO-Meldeverfahren bei Datenpannen einbeziehen (72 Stunden an Aufsichtsbehörde)"},{"id":"s05-t00-i008","text":"Vorfallsreaktionsplan jährlich durch Tabletop-Übungen testen"}],"notes":[]},{"id":"s05-t01","title":"5.2 Vorfallsreaktions-Lebenszyklus","description":["Kategorie / Phase","Beschreibung","Vorbereitung","Richtlinien, Tools, Schulung und Ressourcen vor Vorfällen etablieren","Erkennung \u0026 Analyse","Umfang und Schwere des Vorfalls identifizieren und bewerten","Eindämmung","Schaden begrenzen und weitere Verbreitung verhindern (betroffene Systeme trennen, IPs blockieren)","Beseitigung","Malware entfernen, Schwachstellen schließen, betroffene Systeme bereinigen","Wiederherstellung","Systeme zum Normalbetrieb zurückführen und Restbedrohungen ausschließen","Nachbereitung","Lessons Learned dokumentieren, Verfahren aktualisieren, Verteidigung verbessern"],"checklist":[],"notes":[]}],"checklist":[],"notes":[],"kind":"controls","trackProgress":true},{"id":"s06","title":"RECOVER — Backup \u0026 Notfallwiederherstellung","description":["Die Recover-Funktion stellt Fähigkeiten oder Dienste wieder her, die durch ein Cybersecurity-Ereignis beeinträchtigt wurden. Eine robuste Backup-Strategie ist die letzte Verteidigungslinie gegen Ransomware und Datenverlust."],"topics":[{"id":"s06-t00","title":"6.1 Backup-Strategie (3-2-1-1-0 Regel)","description":["Der moderne Backup-Standard erweitert die klassische 3-2-1-Regel um Unveränderbarkeit und Verifizierung: 3 Datenkopien, auf 2 verschiedenen Medientypen, 1 Offsite-Kopie, 1 unveränderbare/air-gapped Kopie, und 0 Fehler (verifizierte Backups)."],"checklist":[{"id":"s06-t00-i000","text":"3 Kopien aller kritischen Daten aufbewahren (1 Primär + 2 Backups)"},{"id":"s06-t00-i001","text":"Backups auf 2 verschiedenen Medientypen speichern (z.B. lokales NAS + Cloud-Speicher)"},{"id":"s06-t00-i002","text":"Mindestens 1 Backup-Kopie Offsite aufbewahren (physisch getrennter Standort oder Cloud)"},{"id":"s06-t00-i003","text":"1 unveränderbare oder air-gapped Backup-Kopie für Ransomware-Schutz implementieren"},{"id":"s06-t00-i004","text":"Verifizieren, dass Backups 0 Fehler haben durch regelmäßige Restore-Tests"},{"id":"s06-t00-i005","text":"Recovery Time Objectives (RTO) und Recovery Point Objectives (RPO) pro System definieren"},{"id":"s06-t00-i006","text":"Alle Backup-Daten im Ruhezustand verschlüsseln; Verschlüsselungsschlüssel getrennt von Backups aufbewahren"},{"id":"s06-t00-i007","text":"Backup-Erfolg/-Fehler mit automatisierter Alarmierung überwachen"},{"id":"s06-t00-i008","text":"Cloud-Kollaborationsdaten (E-Mail, Laufwerke, Chat) unabhängig sichern"},{"id":"s06-t00-i009","text":"Restore-Verfahren vierteljährlich sowohl von lokalen als auch Cloud-Backups testen"},{"id":"s06-t00-i010","text":"Notfallwiederherstellungsplan jährlich dokumentieren und testen"}],"notes":[]}],"checklist":[],"notes":[],"kind":"controls","trackProgress":true},{"id":"s07","title":"Compliance \u0026 Rechtliche Anforderungen","description":["Die Einhaltung geltender Gesetze und Vorschriften ist nicht optional. Für Organisationen, die Daten von EU-Bürgern verarbeiten, legt die DSGVO spezifische technische und organisatorische Sicherheitsanforderungen fest."],"topics":[],"checklist":[{"id":"s07-i000","text":"Verzeichnis von Verarbeitungstätigkeiten (VVT) gemäß DSGVO Artikel 30 führen"},{"id":"s07-i001","text":"Technische und organisatorische Maßnahmen (TOMs) implementieren: Datenschutz durch Technikgestaltung und durch datenschutzfreundliche Voreinstellungen"},{"id":"s07-i002","text":"Datenschutzerklärung auf der Website veröffentlichen"},{"id":"s07-i003","text":"Datenpannen-Meldeverfahren etablieren (72h an Aufsichtsbehörde)"},{"id":"s07-i004","text":"Verfahren für die Bearbeitung von Betroffenenrechtsanfragen definieren"},{"id":"s07-i005","text":"Auftragsverarbeitungsverträge (AVV) mit allen Auftragsverarbeitern abschließen"},{"id":"s07-i006","text":"Datenschutzverantwortliche Person benennen (DSB nicht für die meisten KMU erforderlich, aber empfohlen)"},{"id":"s07-i007","text":"Compliance bei grenzüberschreitenden Datenübertragungen sicherstellen"},{"id":"s07-i008","text":"Regelmäßige Compliance-Reviews durchführen"}],"notes":[],"kind":"controls","trackProgress":true},{"id":"s08","title":"Lieferanten- \u0026 Drittanbieter-Risikomanagement","description":["Drittanbieter-Lieferanten haben häufig Zugriff auf Ihre Daten und Systeme. Ihre Sicherheit wird zu Ihrer Sicherheit — 35,5% aller Verletzungen stammen von Drittanbieter-Schwachstellen."],"topics":[],"checklist":[{"id":"s08-i000","text":"Lieferantenregister führen mit allen Drittanbietern, erbrachten Diensten und geteilten Daten"},{"id":"s08-i001","text":"Lieferanten nach Kritikalitätsstufe klassifizieren (Kritisch, Wichtig, Standard, Niedrig)"},{"id":"s08-i002","text":"Sicherheitslage von Lieferanten vor Onboarding bewerten (Fragebogen, Zertifizierungen)"},{"id":"s08-i003","text":"Lieferanten-Compliance-Zertifizierungen prüfen (SOC 2, ISO 27001) wo relevant"},{"id":"s08-i004","text":"Auftragsverarbeitungsverträge (AVV) für alle Lieferanten abschließen, die personenbezogene Daten verarbeiten"},{"id":"s08-i005","text":"Vorfallsreaktionspläne und Datenpannen-Meldeverpflichtungen von Lieferanten prüfen"},{"id":"s08-i006","text":"Kritische Lieferanten vierteljährlich, wichtige halbjährlich überwachen"},{"id":"s08-i007","text":"SLA-Einhaltung, Sicherheitsvorfälle und Compliance-Abweichungen verfolgen"},{"id":"s08-i008","text":"Exit-Strategien für kritische Lieferanten entwickeln, um Geschäftskontinuität zu gewährleisten"}],"notes":[],"kind":"controls","trackProgress":true},{"id":"s09","title":"Sicherheitsbewusstsein \u0026 Schulung","description":["Über 80% aller Verletzungen beinhalten ein menschliches Element. Mitarbeiter sind Ihre erste Verteidigungslinie — wenn sie ordnungsgemäß geschult sind. Sicherheitsbewusstsein verwandelt Ihre Belegschaft von einer Schwachstelle in eine Erkennungsfähigkeit."],"topics":[],"checklist":[{"id":"s09-i000","text":"Sicherheitsbewusstseins-Schulung für alle Mitarbeiter beim Onboarding durchführen"},{"id":"s09-i001","text":"Jährliche Sicherheitsbewusstseins-Auffrischungsschulung für alle Mitarbeiter anbieten"},{"id":"s09-i002","text":"Vierteljährliche Phishing-Simulationsübungen durchführen"},{"id":"s09-i003","text":"Mitarbeiter schulen zur Erkennung von: Phishing, Social Engineering, verdächtigen Links/Anhängen"},{"id":"s09-i004","text":"Klaren Prozess für die Meldung von Sicherheitsvorfällen und verdächtigen Aktivitäten etablieren"},{"id":"s09-i005","text":"Rollenbasierte Schulung für privilegierte Benutzer und Administratoren anbieten"},{"id":"s09-i006","text":"Schulung zu sicheren Remote-Arbeitspraktiken und VPN-Nutzung"},{"id":"s09-i007","text":"Schulungseffektivität durch Quiz und Phishing-Click-Rate-Tracking messen"},{"id":"s09-i008","text":"Schulungsabschluss dokumentieren und Aufzeichnungen für Compliance führen"}],"notes":[],"kind":"controls","trackProgress":true},{"id":"s10","title":"Implementierungs-Roadmap","description":["Die Sicherheitsimplementierung sollte phasenweise erfolgen, um Ressourcen und Risiken effektiv zu managen. Beginnen Sie mit den Kontrollen mit höchstem Impact und geringstem Aufwand und bauen Sie darauf auf.","Kategorie / Phase","Beschreibung","Phase 1: Fundament","Asset-Inventar, MFA-Einführung, Passwort-Manager, Firewall-Konfig, Standard-Passwort-Änderungen, kritisches Patching","Phase 2: Härtung","VPN-Einführung, Netzwerksegmentierung, Disk-Verschlüsselung, MDM-Enrollment, EDR-Deployment, SSH-Härtung","Phase 3: Schutz","DLP-Richtlinien, E-Mail-Authentifizierung (SPF/DKIM/DMARC), Secrets-Management, KI-Sicherheit, Backup-Immunität","Phase 4: Erkennung","Zentrale Protokollierung, SIEM-Deployment, FIM, Schwachstellen-Scanning-Programm, Alarmierungsregeln","Phase 5: Governance","Vorfallsreaktionsplan, Sicherheitsrichtlinien, Risikoregister, Lieferantenbewertungen, DSGVO-Dokumentation","Phase 6: Kontinuierlich (Laufend)","Vierteljährliche Zugriffsreviews, monatliche Scans, vierteljährliche Phishing-Tests, jährliche Richtlinienreview, IR Tabletop-Übungen"],"topics":[],"checklist":[],"notes":[],"kind":"roadmap","trackProgress":false},{"id":"s11","title":"Master-Checkliste Zusammenfassung","description":["Diese konsolidierte Checkliste bietet einen Überblick über alle Sicherheitspunkte in diesem Rahmenwerk. Verwenden Sie sie für Management-Reporting und Fortschrittsverfolgung."],"topics":[{"id":"s11-t00","title":"Kritische Priorität (Sofort angehen)","description":[],"checklist":[{"id":"s11-t00-i000","text":"MFA auf allen Geschäftskonten aktivieren (besonders E-Mail und Admin)"},{"id":"s11-t00-i001","text":"Passwort-Manager einführen und starke eindeutige Passwörter erzwingen"},{"id":"s11-t00-i002","text":"Alle Standardpasswörter an Routern, Servern und Anwendungen ändern"},{"id":"s11-t00-i003","text":"Firewalls (Netzwerk- und Host-basiert) mit Default-Deny aktivieren"},{"id":"s11-t00-i004","text":"Kritische Schwachstellen innerhalb von 48-72 Stunden patchen"},{"id":"s11-t00-i005","text":"Backup-Strategie mit Offsite- und unveränderbaren Kopien implementieren"},{"id":"s11-t00-i006","text":"SSH und Remote-Zugriff sichern (Schlüssel-basiert, VPN-only)"},{"id":"s11-t00-i007","text":"Gast-/IoT-Netzwerk vom Unternehmens-LAN trennen"},{"id":"s11-t00-i008","text":"Endpunktschutz (EDR/Antivirus) auf allen Geräten einrichten"},{"id":"s11-t00-i009","text":"Disk-Verschlüsselung auf allen Laptops und Mobilgeräten aktivieren"}],"notes":[]},{"id":"s11-t01","title":"Hohe Priorität (Innerhalb 30-60 Tage)","description":[],"checklist":[{"id":"s11-t01-i000","text":"Unternehmens-VPN für alle Remote-Zugriffe einrichten"},{"id":"s11-t01-i001","text":"MDM für alle Unternehmensgeräte implementieren"},{"id":"s11-t01-i002","text":"SPF, DKIM und DMARC für E-Mail-Domains konfigurieren"},{"id":"s11-t01-i003","text":"Secrets-Management für Anmeldedaten und API-Schlüssel einrichten"},{"id":"s11-t01-i004","text":"Netzwerksegmentierung implementieren (Mitarbeiter, Server, Gast-VLANs)"},{"id":"s11-t01-i005","text":"Zentrale Protokollierung und Überwachung aktivieren"},{"id":"s11-t01-i006","text":"Vorfallsreaktionsplan mit definierten Rollen erstellen"},{"id":"s11-t01-i007","text":"Zugriffsreview-Prozess etablieren"},{"id":"s11-t01-i008","text":"Kritische Datenassets dokumentieren und klassifizieren"},{"id":"s11-t01-i009","text":"DLP-Richtlinien für sensible Daten implementieren"}],"notes":[]},{"id":"s11-t02","title":"Mittlere Priorität (Innerhalb 3-6 Monate)","description":[],"checklist":[{"id":"s11-t02-i000","text":"SIEM mit Alarmierungsregeln einrichten"},{"id":"s11-t02-i001","text":"File Integrity Monitoring implementieren"},{"id":"s11-t02-i002","text":"Sicherheitsbewusstseins-Schulungsprogramm durchführen"},{"id":"s11-t02-i003","text":"Lieferantenrisikomanagement-Prozess etablieren"},{"id":"s11-t02-i004","text":"DSGVO-Compliance-Dokumentation vervollständigen"},{"id":"s11-t02-i005","text":"Schwachstellenmanagement-Programm mit regelmäßigen Scans implementieren"},{"id":"s11-t02-i006","text":"Erweiterten E-Mail-Schutz einrichten"},{"id":"s11-t02-i007","text":"KI-Infrastruktur härten und Modell-Governance implementieren"},{"id":"s11-t02-i008","text":"Physische Sicherheitskontrollen für Serverraum implementieren"},{"id":"s11-t02-i009","text":"Risikobewertung durchführen und Risikoregister etablieren"}],"notes":[]},{"id":"s11-t03","title":"Laufende Aktivitäten","description":[],"checklist":[{"id":"s11-t03-i000","text":"Schwachstellenscans: monatlich"},{"id":"s11-t03-i001","text":"Patch-Management: wöchentlich für Kritisch, monatlich für Sonstige"},{"id":"s11-t03-i002","text":"Backup-Restore-Tests: vierteljährlich"},{"id":"s11-t03-i003","text":"Phishing-Simulationen: vierteljährlich"},{"id":"s11-t03-i004","text":"Sicherheitsbewusstseins-Schulung: jährlich + Onboarding"},{"id":"s11-t03-i005","text":"Zugriffsreviews: vierteljährlich"},{"id":"s11-t03-i006","text":"Richtlinien-Review: jährlich"},{"id":"s11-t03-i007","text":"Vorfallsreaktions-Tabletop-Übung: jährlich"},{"id":"s11-t03-i008","text":"Risikoregister-Review: vierteljährlich"},{"id":"s11-t03-i009","text":"Lieferanten-Sicherheitsreviews: vierteljährlich für kritische Lieferanten"}],"notes":["IT-Sicherheitsrahmenwerk","Umfassende Checkliste \u0026 Implementierungsleitfaden","Version 1.0  |  Juni 2026","Vertraulich — Nur für den internen Gebrauch","Rahmenwerke: NIST CSF 2.0 | ISO 27001 | CIS Controls | BSI IT-Grundschutz"]}],"checklist":[],"notes":[],"kind":"priority","trackProgress":false}]}}};
+
+    const palette = [
+      '#0f766e',
+      '#235fd6',
+      '#a15c07',
+      '#b42318',
+      '#6d28d9',
+      '#087f9c',
+      '#be185d',
+      '#4d7c0f',
+      '#7f1d1d'
+    ];
+
+    const labels = {
+      en: {
+        checklist: 'Checklist',
+        reference: 'Reference',
+        allSections: 'All sections',
+        noSaved: 'No saved progress yet',
+        saved: 'Saved',
+        done: 'Done',
+        open: 'Open',
+        total: 'Total',
+        completeVisible: 'Complete visible',
+        clearVisible: 'Clear visible',
+        noMatches: 'No matching controls for the current search/filter.',
+        resetConfirm: 'Reset all saved progress?',
+        imported: 'Progress imported',
+        exported: 'Progress exported',
+        invalidImport: 'Import file is not valid progress JSON',
+        reset: 'Progress reset',
+        visibleDone: 'Visible controls completed',
+        visibleOpen: 'Visible controls cleared',
+        dashboardTitle: 'Progress Dashboard',
+        dashboardSubtitle: 'Live overview of your IT-security implementation progress.',
+        completedControls: 'Completed controls',
+        openControls: 'Open controls',
+        trackedDomains: 'Tracked domains',
+        nextFocus: 'Next focus',
+        noNextFocus: 'All tracked controls are complete',
+        language: 'Language'
+      },
+      de: {
+        checklist: 'Checkliste',
+        reference: 'Referenz',
+        allSections: 'Alle Bereiche',
+        noSaved: 'Noch kein gespeicherter Fortschritt',
+        saved: 'Gespeichert',
+        done: 'Erledigt',
+        open: 'Offen',
+        total: 'Gesamt',
+        completeVisible: 'Sichtbare erledigen',
+        clearVisible: 'Sichtbare lÃ¶schen',
+        noMatches: 'Keine passenden Kontrollen fÃ¼r Suche/Filter.',
+        resetConfirm: 'Gespeicherten Fortschritt zurÃ¼cksetzen?',
+        imported: 'Fortschritt importiert',
+        exported: 'Fortschritt exportiert',
+        dashboardTitle: 'Fortschritts-Dashboard',
+        dashboardSubtitle: 'Live-Ueberblick ueber den Fortschritt der IT-Sicherheitsumsetzung.',
+        completedControls: 'Abgeschlossene Kontrollen',
+        openControls: 'Offene Kontrollen',
+        trackedDomains: 'Verfolgte Bereiche',
+        nextFocus: 'Naechster Fokus',
+        noNextFocus: 'Alle verfolgten Kontrollen sind abgeschlossen',
+        language: 'Sprache',
+        invalidImport: 'Importdatei ist kein gÃ¼ltiges Fortschritts-JSON',
+        reset: 'Fortschritt zurÃ¼ckgesetzt',
+        visibleDone: 'Sichtbare Kontrollen erledigt',
+        visibleOpen: 'Sichtbare Kontrollen gelÃ¶scht'
+      }
+    };
+
+    const state = {
+      lang: localStorage.getItem('itSecurityFrameworkLanguage') || 'en',
+      filter: 'all',
+      section: 'all',
+      query: '',
+      progress: {},
+      updatedAt: ''
+    };
+
+    const els = {
+      appTitle: document.getElementById('appTitle'),
+      appSubtitle: document.getElementById('appSubtitle'),
+      overallPercent: document.getElementById('overallPercent'),
+      overallUpdated: document.getElementById('overallUpdated'),
+      overallFill: document.getElementById('overallFill'),
+      doneCount: document.getElementById('doneCount'),
+      openCount: document.getElementById('openCount'),
+      totalCount: document.getElementById('totalCount'),
+      sectionNav: document.getElementById('sectionNav'),
+      viewTitle: document.getElementById('viewTitle'),
+      viewMeta: document.getElementById('viewMeta'),
+      languageToggleLabel: document.getElementById('languageToggleLabel'),
+      languageButtons: document.querySelectorAll('[data-lang]'),
+      sectionSelect: document.getElementById('sectionSelect'),
+      searchInput: document.getElementById('searchInput'),
+      content: document.getElementById('content'),
+      dashboardTitle: document.getElementById('dashboardTitle'),
+      dashboardSubtitle: document.getElementById('dashboardSubtitle'),
+      dashboardRing: document.getElementById('dashboardRing'),
+      dashboardPercent: document.getElementById('dashboardPercent'),
+      dashboardDone: document.getElementById('dashboardDone'),
+      dashboardDoneLabel: document.getElementById('dashboardDoneLabel'),
+      dashboardOpen: document.getElementById('dashboardOpen'),
+      dashboardOpenLabel: document.getElementById('dashboardOpenLabel'),
+      dashboardDomains: document.getElementById('dashboardDomains'),
+      dashboardDomainsLabel: document.getElementById('dashboardDomainsLabel'),
+      dashboardNextFocus: document.getElementById('dashboardNextFocus'),
+      dashboardNextFocusLabel: document.getElementById('dashboardNextFocusLabel'),
+      dashboardDomainGrid: document.getElementById('dashboardDomainGrid'),
+      resetProgress: document.getElementById('resetProgress'),
+      expandAll: document.getElementById('expandAll'),
+      collapseAll: document.getElementById('collapseAll'),
+      exportProgress: document.getElementById('exportProgress'),
+      importProgress: document.getElementById('importProgress'),
+      importFile: document.getElementById('importFile'),
+      toast: document.getElementById('toast')
+    };
+
+    function t(key) {
+      return (labels[state.lang] && labels[state.lang][key]) || labels.en[key] || key;
+    }
+
+    function getLangData() {
+      return FRAMEWORK.languages[state.lang] || FRAMEWORK.languages.en;
+    }
+
+    function loadProgress() {
+      try {
+        const raw = localStorage.getItem(FRAMEWORK.storageKey);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        state.progress = parsed.progress || {};
+        state.updatedAt = parsed.updatedAt || '';
+      } catch {
+        state.progress = {};
+        state.updatedAt = '';
+      }
+    }
+
+    function saveProgress() {
+      state.updatedAt = new Date().toISOString();
+      localStorage.setItem(FRAMEWORK.storageKey, JSON.stringify({
+        progress: state.progress,
+        updatedAt: state.updatedAt
+      }));
+    }
+
+    function allTrackedControls(data = getLangData()) {
+      const controls = [];
+      data.sections.forEach((section) => {
+        if (!section.trackProgress) return;
+        section.checklist.forEach((item) => controls.push({ section, topic: null, item }));
+        section.topics.forEach((topic) => {
+          topic.checklist.forEach((item) => controls.push({ section, topic, item }));
+        });
+      });
+      return controls;
+    }
+
+    function sectionControls(section) {
+      const controls = [];
+      if (!section.trackProgress) return controls;
+      section.checklist.forEach((item) => controls.push({ section, topic: null, item }));
+      section.topics.forEach((topic) => {
+        topic.checklist.forEach((item) => controls.push({ section, topic, item }));
+      });
+      return controls;
+    }
+
+    function countDone(controls) {
+      return controls.filter(({ item }) => !!state.progress[item.id]).length;
+    }
+
+    function trackedSections(data = getLangData()) {
+      return data.sections.filter((section) => section.trackProgress);
+    }
+
+    function sectionProgress(section) {
+      const controls = sectionControls(section);
+      const total = controls.length;
+      const done = countDone(controls);
+      return {
+        section,
+        total,
+        done,
+        open: total - done,
+        percent: pct(done, total)
+      };
+    }
+
+    function nextFocusSection(data) {
+      return trackedSections(data)
+        .map(sectionProgress)
+        .filter((entry) => entry.open > 0)
+        .sort((a, b) => a.percent - b.percent || b.open - a.open)[0] || null;
+    }
+
+    function pct(done, total) {
+      return total ? Math.round((done / total) * 100) : 0;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function normalize(value) {
+      return String(value || '').toLowerCase();
+    }
+
+    function itemMatches(section, topic, item) {
+      const query = normalize(state.query);
+      const haystack = normalize([
+        section.title,
+        section.description.join(' '),
+        topic ? topic.title : '',
+        topic ? topic.description.join(' ') : '',
+        item.text
+      ].join(' '));
+      const queryMatch = !query || haystack.includes(query);
+      const done = !!state.progress[item.id];
+      const filterMatch = state.filter === 'all' || (state.filter === 'done' && done) || (state.filter === 'open' && !done);
+      return queryMatch && filterMatch;
+    }
+
+    function splitReferencePairs(section) {
+      const rows = section.description || [];
+      const headerIndex = rows.findIndex((line) => /Category \/ Phase|Kategorie \/ Phase/.test(line));
+      if (headerIndex < 0) {
+        return { lead: rows, pairs: [] };
+      }
+
+      const lead = rows.slice(0, headerIndex);
+      const pairs = [];
+      for (let i = headerIndex + 2; i < rows.length; i += 2) {
+        if (!rows[i]) continue;
+        pairs.push({ label: rows[i], value: rows[i + 1] || '' });
+      }
+      return { lead, pairs };
+    }
+
+    function renderSummaryPanel(section) {
+      const parsed = splitReferencePairs(section);
+      const lead = parsed.lead.map((line) => `<p class="domain-description">${escapeHtml(line)}</p>`).join('');
+      const pairs = parsed.pairs.map((pair) => `
+        <div class="reference-item">
+          <strong>${escapeHtml(pair.label)}</strong>
+          <span>${escapeHtml(pair.value)}</span>
+        </div>
+      `).join('');
+
+      return `
+        <article class="domain" id="${section.id}" style="--accent:${palette[0]}">
+          <div class="domain-header">
+            <div class="domain-heading">
+              <h3>${escapeHtml(section.title)}</h3>
+            </div>
+            ${lead}
+            ${pairs ? `<div class="reference-grid">${pairs}</div>` : ''}
+          </div>
+        </article>
+      `;
+    }
+
+    function renderPriorityPanel(section, accent) {
+      const topics = section.topics.map((topic) => `
+        <div class="reference-item">
+          <strong>${escapeHtml(topic.title)}</strong>
+          <ul class="reference-list">
+            ${topic.checklist.map((item) => `<li>${escapeHtml(item.text)}</li>`).join('')}
+          </ul>
+        </div>
+      `).join('');
+
+      return `
+        <article class="domain" id="${section.id}" style="--accent:${accent}">
+          <div class="domain-header">
+            <div class="domain-heading">
+              <h3>${escapeHtml(section.title)}</h3>
+            </div>
+            ${(section.description || []).slice(0, 1).map((line) => `<p class="domain-description">${escapeHtml(line)}</p>`).join('')}
+            <div class="reference-grid">${topics}</div>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderReferenceSection(section, accent) {
+      if (section.kind === 'priority') return renderPriorityPanel(section, accent);
+
+      const parsed = splitReferencePairs(section);
+      const lead = parsed.lead.map((line) => `<p class="domain-description">${escapeHtml(line)}</p>`).join('');
+      const pairs = parsed.pairs.map((pair) => `
+        <div class="reference-item">
+          <strong>${escapeHtml(pair.label)}</strong>
+          <span>${escapeHtml(pair.value)}</span>
+        </div>
+      `).join('');
+
+      return `
+        <article class="domain" id="${section.id}" style="--accent:${accent}">
+          <div class="domain-header">
+            <div class="domain-heading">
+              <h3>${escapeHtml(section.title)}</h3>
+            </div>
+            ${lead}
+            ${pairs ? `<div class="reference-grid">${pairs}</div>` : ''}
+          </div>
+        </article>
+      `;
+    }
+
+    function renderChecklistItems(section, topic) {
+      const items = (topic ? topic.checklist : section.checklist) || [];
+      const visible = items.filter((item) => itemMatches(section, topic, item));
+      if (!visible.length) {
+        return `<div class="empty-state">${escapeHtml(t('noMatches'))}</div>`;
+      }
+
+      return visible.map((item) => {
+        const done = !!state.progress[item.id];
+        return `
+          <label class="check-row ${done ? 'is-done' : ''}">
+            <input type="checkbox" data-id="${escapeHtml(item.id)}" ${done ? 'checked' : ''}>
+            <span class="check-text ${done ? 'done' : ''}">${escapeHtml(item.text)}</span>
+          </label>
+        `;
+      }).join('');
+    }
+
+    function renderTopic(section, topic, index) {
+      const controls = topic.checklist || [];
+      const done = countDone(controls.map((item) => ({ section, topic, item })));
+      const total = controls.length;
+      const open = index < 2 || state.query || state.filter !== 'all';
+      return `
+        <details class="topic" ${open ? 'open' : ''}>
+          <summary>
+            <span class="topic-title">
+              <strong>${escapeHtml(topic.title)}</strong>
+              <span>${done}/${total} ${escapeHtml(t('done'))}</span>
+            </span>
+            <span class="topic-chevron" aria-hidden="true"> </span>
+          </summary>
+          <div class="checklist">${renderChecklistItems(section, topic)}</div>
+        </details>
+      `;
+    }
+
+    function renderSection(section, index) {
+      const controls = sectionControls(section);
+      const done = countDone(controls);
+      const total = controls.length;
+      const percent = pct(done, total);
+      const accent = palette[(index - 1 + palette.length) % palette.length];
+
+      let body = '';
+      if (section.topics.length) {
+        body = section.topics.map((topic, topicIndex) => renderTopic(section, topic, topicIndex)).join('');
+      } else {
+        body = `<div class="checklist">${renderChecklistItems(section, null)}</div>`;
+      }
+
+      return `
+        <article class="domain" id="${section.id}" style="--accent:${accent}">
+          <div class="domain-header">
+            <div class="domain-heading">
+              <h3>${escapeHtml(section.title)}</h3>
+              <div class="domain-actions">
+                <button type="button" data-bulk="done" data-section="${escapeHtml(section.id)}">${escapeHtml(t('completeVisible'))}</button>
+                <button type="button" data-bulk="open" data-section="${escapeHtml(section.id)}">${escapeHtml(t('clearVisible'))}</button>
+              </div>
+            </div>
+            ${(section.description || []).slice(0, 1).map((line) => `<p class="domain-description">${escapeHtml(line)}</p>`).join('')}
+            <div class="mini-progress">
+              <div class="progress-track" aria-hidden="true">
+                <div class="progress-fill" style="width:${percent}%"></div>
+              </div>
+              <span>${done}/${total} ${escapeHtml(t('done'))}</span>
+            </div>
+          </div>
+          ${body}
+        </article>
+      `;
+    }
+
+    function renderSectionOptions(data) {
+      const options = [`<option value="all">${escapeHtml(t('allSections'))}</option>`]
+        .concat(data.sections
+          .filter((section) => section.trackProgress)
+          .map((section) => `<option value="${escapeHtml(section.id)}">${escapeHtml(section.title)}</option>`));
+      els.sectionSelect.innerHTML = options.join('');
+      els.sectionSelect.value = state.section;
+    }
+
+    function renderNav(data) {
+      const tracking = data.sections.filter((section) => section.trackProgress);
+      els.sectionNav.innerHTML = tracking.map((section, index) => {
+        const controls = sectionControls(section);
+        const done = countDone(controls);
+        const total = controls.length;
+        const percent = pct(done, total);
+        const accent = palette[index % palette.length];
+        return `
+          <button class="nav-item" type="button" data-nav="${escapeHtml(section.id)}" style="--accent:${accent}">
+            <span class="nav-item-title"><span class="nav-dot"></span><span>${escapeHtml(section.title)}</span></span>
+            <span class="nav-meta">${percent}% ${done}/${total}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderProgress(data) {
+      const controls = allTrackedControls(data);
+      const total = controls.length;
+      const done = countDone(controls);
+      const open = total - done;
+      const percent = pct(done, total);
+      const domains = trackedSections(data);
+      const next = nextFocusSection(data);
+
+      els.overallPercent.textContent = `${percent}%`;
+      els.overallFill.style.width = `${percent}%`;
+      els.doneCount.textContent = done;
+      els.openCount.textContent = open;
+      els.totalCount.textContent = total;
+      els.overallUpdated.textContent = state.updatedAt
+        ? `${t('saved')} ${new Date(state.updatedAt).toLocaleString()}`
+        : t('noSaved');
+      els.viewMeta.textContent = `${done}/${total} ${t('done')}`;
+      els.dashboardTitle.textContent = t('dashboardTitle');
+      els.dashboardSubtitle.textContent = t('dashboardSubtitle');
+      els.dashboardPercent.textContent = `${percent}%`;
+      els.dashboardRing.style.setProperty('--dashboard-angle', `${percent * 3.6}deg`);
+      els.dashboardDone.textContent = done;
+      els.dashboardDoneLabel.textContent = t('completedControls');
+      els.dashboardOpen.textContent = open;
+      els.dashboardOpenLabel.textContent = t('openControls');
+      els.dashboardDomains.textContent = domains.length;
+      els.dashboardDomainsLabel.textContent = t('trackedDomains');
+      els.dashboardNextFocus.textContent = next ? next.section.title.replace(/^[A-Z]+ ” /, '') : '-';
+      els.dashboardNextFocusLabel.textContent = next ? `${t('nextFocus')} ${next.percent}%` : t('noNextFocus');
+      els.dashboardDomainGrid.innerHTML = domains.map((section, index) => {
+        const entry = sectionProgress(section);
+        const accent = palette[index % palette.length];
+        return `
+          <div class="domain-progress" style="--accent:${accent}">
+            <strong>${escapeHtml(section.title)}</strong>
+            <div class="progress-track" aria-hidden="true">
+              <div class="progress-fill" style="width:${entry.percent}%"></div>
+            </div>
+            <span>${entry.done}/${entry.total} ${escapeHtml(t('done'))}  ${entry.percent}%</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function render() {
+      const data = getLangData();
+      document.documentElement.lang = state.lang;
+      els.languageToggleLabel.textContent = t('language');
+      els.languageButtons.forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.dataset.lang === state.lang));
+      });
+      els.appTitle.textContent = data.title || 'IT Security Dashboard';
+      els.appSubtitle.textContent = data.subtitle || '';
+      els.viewTitle.textContent = t('checklist');
+
+      renderSectionOptions(data);
+      renderProgress(data);
+      renderNav(data);
+
+      const sections = data.sections.filter((section) => {
+        if (!section.trackProgress) return state.section === 'all';
+        return state.section === 'all' || state.section === section.id;
+      });
+
+      const checklistSections = sections
+        .filter((section) => section.trackProgress)
+        .map((section, index) => renderSection(section, index + 1));
+
+      const referenceSections = sections
+        .filter((section) => !section.trackProgress)
+        .map((section, index) => renderReferenceSection(section, palette[(index + 5) % palette.length]));
+
+      els.content.innerHTML = checklistSections.concat(referenceSections).join('');
+    }
+
+    function visibleItemIds(sectionId) {
+      const data = getLangData();
+      const ids = [];
+      data.sections
+        .filter((section) => section.id === sectionId)
+        .forEach((section) => {
+          section.checklist.forEach((item) => {
+            if (itemMatches(section, null, item)) ids.push(item.id);
+          });
+          section.topics.forEach((topic) => {
+            topic.checklist.forEach((item) => {
+              if (itemMatches(section, topic, item)) ids.push(item.id);
+            });
+          });
+        });
+      return ids;
+    }
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add('show');
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => els.toast.classList.remove('show'), 2200);
+    }
+
+    els.languageButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        state.lang = button.dataset.lang;
+        localStorage.setItem('itSecurityFrameworkLanguage', state.lang);
+        render();
+      });
+    });
+
+    els.sectionSelect.addEventListener('change', (event) => {
+      state.section = event.target.value;
+      render();
+    });
+
+    els.searchInput.addEventListener('input', (event) => {
+      state.query = event.target.value.trim();
+      render();
+    });
+
+    document.querySelectorAll('[data-filter]').forEach((button) => {
+      button.addEventListener('click', () => {
+        state.filter = button.dataset.filter;
+        document.querySelectorAll('[data-filter]').forEach((other) => {
+          other.setAttribute('aria-pressed', String(other === button));
+        });
+        render();
+      });
+    });
+
+    els.content.addEventListener('change', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement) || target.type !== 'checkbox') return;
+      state.progress[target.dataset.id] = target.checked;
+      if (!target.checked) delete state.progress[target.dataset.id];
+      saveProgress();
+      render();
+    });
+
+    els.content.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-bulk]');
+      if (!button) return;
+      const ids = visibleItemIds(button.dataset.section);
+      ids.forEach((id) => {
+        if (button.dataset.bulk === 'done') {
+          state.progress[id] = true;
+        } else {
+          delete state.progress[id];
+        }
+      });
+      saveProgress();
+      showToast(button.dataset.bulk === 'done' ? t('visibleDone') : t('visibleOpen'));
+      render();
+    });
+
+    els.sectionNav.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-nav]');
+      if (!button) return;
+      document.getElementById(button.dataset.nav)?.scrollIntoView({ block: 'start' });
+    });
+
+    els.resetProgress.addEventListener('click', () => {
+      if (!window.confirm(t('resetConfirm'))) return;
+      state.progress = {};
+      state.updatedAt = '';
+      localStorage.removeItem(FRAMEWORK.storageKey);
+      showToast(t('reset'));
+      render();
+    });
+
+    els.expandAll.addEventListener('click', () => {
+      document.querySelectorAll('details.topic').forEach((details) => details.open = true);
+    });
+
+    els.collapseAll.addEventListener('click', () => {
+      document.querySelectorAll('details.topic').forEach((details) => details.open = false);
+    });
+
+    els.exportProgress.addEventListener('click', () => {
+      const payload = {
+        storageKey: FRAMEWORK.storageKey,
+        exportedAt: new Date().toISOString(),
+        progress: state.progress,
+        updatedAt: state.updatedAt
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'it-security-progress.json';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      showToast(t('exported'));
+    });
+
+    els.importProgress.addEventListener('click', () => {
+      els.importFile.click();
+    });
+
+    els.importFile.addEventListener('change', async () => {
+      const file = els.importFile.files && els.importFile.files[0];
+      if (!file) return;
+      try {
+        const parsed = JSON.parse(await file.text());
+        if (!parsed || typeof parsed.progress !== 'object') {
+          throw new Error('Invalid progress payload');
+        }
+        state.progress = parsed.progress || {};
+        state.updatedAt = parsed.updatedAt || new Date().toISOString();
+        saveProgress();
+        showToast(t('imported'));
+        render();
+      } catch {
+        showToast(t('invalidImport'));
+      } finally {
+        els.importFile.value = '';
+      }
+    });
+
+    loadProgress();
+    render();
+  </script>
+</body>
+</html>
